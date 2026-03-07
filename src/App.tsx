@@ -486,8 +486,8 @@ export default function App() {
                   <div key={item.id || 'root'} className="flex items-center">
                     <button
                       className={`flex items-center gap-2.5 cursor-pointer transition-all duration-200 p-2 px-3 rounded-lg group ${index === currentPath.length - 1
-                          ? "text-text-primary font-bold"
-                          : "text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/80"
+                        ? "text-text-primary font-bold"
+                        : "text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/80"
                         }`}
                       onClick={() => navigateToBreadcrumb(index)}
                     >
@@ -621,10 +621,10 @@ export default function App() {
                       </div>
                     ) : (
                       <div className="animate-fade-in bg-bg-secondary rounded-[26px] border border-border-color overflow-hidden shadow-soft mb-10 transition-all duration-500">
-                        <div className="grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 border-b border-border-color bg-bg-tertiary/20 text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.16em]">
+                        <div className="grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px] gap-4 p-4 px-8 border-b border-border-color bg-bg-tertiary/20 text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.16em]">
                           <div className="pl-1.5">Name</div>
-                          <div className="hidden lg:block">Owner</div>
                           <div className="hidden lg:block">Kind</div>
+                          <div className="hidden lg:block">Owner</div>
                           <div className="hidden lg:block">Modified</div>
                           <div className="text-right pr-4">Size</div>
                           <div></div>
@@ -633,7 +633,7 @@ export default function App() {
                           {displayedFolders.map(folder => (
                             <div
                               key={`folder-${folder.id}`}
-                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.08] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/20' : ''}`}
+                              className={`group grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.08] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/20' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigateToFolder(folder);
@@ -645,12 +645,12 @@ export default function App() {
                                 </div>
                                 <span className="text-[14px] font-bold text-text-primary truncate">{folder.name}</span>
                               </div>
+                              <div className="hidden lg:block">
+                                <span className="text-[10px] font-extrabold text-file-folder bg-file-folder/10 px-2 py-0.5 rounded-md uppercase tracking-tight">Folder</span>
+                              </div>
                               <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
                                 {renderOwnerAvatar(folder.owner)}
                                 <span className="truncate">{folder.owner === 'me' ? 'Only me' : folder.owner}</span>
-                              </div>
-                              <div className="hidden lg:block">
-                                <span className="text-[10px] font-extrabold text-file-folder bg-file-folder/10 px-2 py-0.5 rounded-md uppercase tracking-tight">Folder</span>
                               </div>
                               <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{folder.date}</div>
                               <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{folder.size}</div>
@@ -662,7 +662,7 @@ export default function App() {
                           {displayedFiles.map(file => (
                             <div
                               key={`file-${file.id}`}
-                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : ''}`}
+                              className={`group grid grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedItem(file);
@@ -674,11 +674,13 @@ export default function App() {
                                 </div>
                                 <span className="text-[14px] font-bold text-text-primary truncate">{file.name}</span>
                               </div>
+                              <div className="hidden lg:block">
+                                <span className={`text-[10px] font-extrabold text-file-${file.type} bg-file-${file.type}/10 px-2 py-0.5 rounded-md uppercase tracking-tight`}>{getKindString(file.type)}</span>
+                              </div>
                               <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
                                 {renderOwnerAvatar(file.owner)}
                                 <span className="truncate">{file.owner === 'me' ? 'Only me' : file.owner}</span>
                               </div>
-                              <div className="hidden lg:block text-[10px] font-extrabold text-text-secondary opacity-60 uppercase tracking-tight">{getKindString(file.type)}</div>
                               <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{file.date}</div>
                               <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{file.size}</div>
                               <div className="flex justify-end pr-1">
