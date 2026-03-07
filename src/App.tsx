@@ -211,15 +211,23 @@ export default function App() {
   const navigateToBreadcrumb = (index: number) => {
     if (index === currentPath.length - 1) return;
     setCurrentSection('my-files');
-    const breadcrumb = currentPath[index];
-    if (breadcrumb.id === null) {
-      setSelectedItem(null);
-    } else {
-      const folder = folders.find(f => f.id === breadcrumb.id);
-      if (folder) setSelectedItem({ ...folder, type: 'folder' });
-    }
+    const childInPath = currentPath[index + 1];
+
     setIsLoading(true);
     setCurrentPath(currentPath.slice(0, index + 1));
+
+    // Highlight the folder that was just "exited" to maintain context
+    if (childInPath && childInPath.id !== null) {
+      const folderToSelect = folders.find(f => f.id === childInPath.id);
+      if (folderToSelect) {
+        setSelectedItem({ ...folderToSelect, type: 'folder' });
+      } else {
+        setSelectedItem(null);
+      }
+    } else {
+      setSelectedItem(null);
+    }
+
     setTimeout(() => setIsLoading(false), 200);
   };
 
