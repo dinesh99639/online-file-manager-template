@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+
 import {
-  Folder, FileImage, FileText, FileVideo, MoreVertical,
+  Folder, FileText, FileVideo, MoreVertical,
   Search, Bell, Moon, Sun, UploadCloud, Download, Share2,
   Grid as GridIcon, List as ListIcon, LayoutDashboard, History as HistoryIcon, Star, Trash2,
   Menu, X, ChevronDown, ChevronRight, Plus, FolderOpen,
-  FileArchive, FileSpreadsheet, File as FileIcon, GalleryVertical, Clapperboard, Package
+  FileArchive, FileSpreadsheet, File as FileIcon, GalleryVertical, Clapperboard, Package,
+  Palette, Droplets, Leaf, Sunset, Ghost
 } from 'lucide-react';
 
 // Dummy data
@@ -54,9 +56,21 @@ export default function App() {
   const [activeSpaceId, setActiveSpaceId] = useState(1);
   const [isSpaceDropdownOpen, setIsSpaceDropdownOpen] = useState(false);
   const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] = useState(false);
+  const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [currentPath, setCurrentPath] = useState([{ id: null as number | null, name: 'My Files' }]);
   const spaceDropdownRef = useRef<HTMLDivElement>(null);
+  const themePickerRef = useRef<HTMLDivElement>(null);
+
+  const themes = [
+    { id: 'light', name: 'Light', icon: <Sun size={16} />, color: '#4f46e5' },
+    { id: 'dark', name: 'Dark', icon: <Moon size={16} />, color: '#818cf8' },
+    { id: 'midnight', name: 'Midnight', icon: <Droplets size={16} />, color: '#38bdf8' },
+    { id: 'ocean', name: 'Ocean', icon: <Droplets size={16} />, color: '#0284c7' },
+    { id: 'forest', name: 'Forest', icon: <Leaf size={16} />, color: '#059669' },
+    { id: 'sunset', name: 'Sunset', icon: <Sunset size={16} />, color: '#ea580c' },
+    { id: 'nord', name: 'Nord', icon: <Ghost size={16} />, color: '#5e81ac' }
+  ];
 
   const activeSpace = spaces.find(s => s.id === activeSpaceId) || spaces[0];
   const currentFolderId = currentPath[currentPath.length - 1].id;
@@ -80,11 +94,14 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle outside click for space dropdown
+  // Handle outside click for space dropdown and theme picker
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (spaceDropdownRef.current && !spaceDropdownRef.current.contains(event.target as Node)) {
         setIsSpaceDropdownOpen(false);
+      }
+      if (themePickerRef.current && !themePickerRef.current.contains(event.target as Node)) {
+        setIsThemePickerOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -173,7 +190,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-bg-primary text-text-primary transition-colors duration-500 font-jakarta antialiased selection:bg-accent-primary/20">
+    <div className={`flex h-screen w-screen overflow-hidden bg-bg-primary text-text-primary transition-colors duration-500 font-jakarta antialiased selection:bg-accent-primary/20 ${theme === 'midnight' ? 'midnight-stars' : ''}`}>
       {/* Sidebar Overlay */}
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 backdrop-blur-sm animate-fade-in md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
 
@@ -307,9 +324,41 @@ export default function App() {
 
             <div className="h-8 w-px bg-border-color mx-2 hidden md:block"></div>
 
-            <button className="flex items-center justify-center p-2.5 rounded-xl border border-transparent hover:border-border-color hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-90" onClick={toggleTheme}>
-              {theme === 'light' ? <Moon size={19} /> : <Sun size={19} />}
-            </button>
+            <div className="relative" ref={themePickerRef}>
+              <button
+                className="flex items-center justify-center p-2.5 rounded-xl border border-transparent hover:border-border-color hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-90"
+                onClick={(e) => { e.stopPropagation(); setIsThemePickerOpen(!isThemePickerOpen); }}
+              >
+                <Palette size={19} />
+              </button>
+
+              {isThemePickerOpen && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-bg-secondary border border-border-color rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in p-2">
+                  <div className="px-3 py-2 text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.12em] border-b border-border-color/50 mb-1">
+                    Select Theme
+                  </div>
+                  {themes.map(t => (
+                    <button
+                      key={t.id}
+                      className={`w-full flex items-center justify-between p-2.5 px-3 rounded-xl transition-all ${theme === t.id ? 'bg-bg-tertiary text-accent-primary' : 'text-text-secondary hover:bg-bg-tertiary/50 hover:text-text-primary'}`}
+                      onClick={() => {
+                        setTheme(t.id);
+                        setIsThemePickerOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm border border-border-color/20" style={{ backgroundColor: t.color + '15', color: t.color }}>
+                          {t.icon}
+                        </div>
+                        <span className="text-sm font-bold">{t.name}</span>
+                      </div>
+                      {theme === t.id && <div className="w-1.5 h-1.5 rounded-full bg-accent-primary"></div>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <button className="hidden md:flex items-center justify-center p-2.5 rounded-xl border border-transparent hover:border-border-color hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all relative">
               <Bell size={19} />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-bg-secondary"></span>

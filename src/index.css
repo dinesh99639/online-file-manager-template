@@ -43,6 +43,123 @@
   --shadow-lg: 0 15px 25px rgba(0, 0, 0, 0.7);
 }
 
+[data-theme='midnight'] {
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent-primary: #38bdf8;
+  --accent-hover: #7dd3fc;
+  --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  --border-color: #1e293b;
+  --glass-bg: rgba(15, 23, 42, 0.8);
+  --glass-border: rgba(56, 189, 248, 0.2);
+}
+
+.midnight-stars {
+  position: relative;
+  background-color: #020617;
+  overflow: hidden;
+}
+
+.midnight-stars::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 15%, #ffffff 100%, transparent),
+    radial-gradient(1.5px 1.5px at 25% 45%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 35% 10%, #ffffff 90%, transparent),
+    radial-gradient(1px 1px at 50% 80%, #ffffff 100%, transparent),
+    radial-gradient(2px 2px at 65% 30%, #6366f1 60%, transparent),
+    radial-gradient(1.2px 1.2px at 80% 55%, #ffffff 100%, transparent),
+    radial-gradient(1.5px 1.5px at 90% 20%, #38bdf8 80%, transparent),
+    radial-gradient(1px 1px at 40% 40%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 70% 85%, #ffffff 100%, transparent);
+  background-size: 500px 500px;
+  animation: starsTwinkle 10s ease-in-out infinite alternate;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.midnight-stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 20%, rgba(99, 102, 241, 0.1), transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.1), transparent 40%);
+  pointer-events: none;
+}
+
+@keyframes starsTwinkle {
+  from {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+[data-theme='ocean'] {
+  --bg-primary: #f0f9ff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e0f2fe;
+  --text-primary: #075985;
+  --text-secondary: #0369a1;
+  --accent-primary: #0284c7;
+  --accent-hover: #0369a1;
+  --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #2dd4bf 100%);
+  --border-color: #bae6fd;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(14, 165, 233, 0.2);
+}
+
+[data-theme='forest'] {
+  --bg-primary: #f0fdf4;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #dcfce7;
+  --text-primary: #064e3b;
+  --text-secondary: #065f46;
+  --accent-primary: #10b981;
+  --accent-hover: #059669;
+  --accent-gradient: linear-gradient(135deg, #10b981 0%, #84cc16 100%);
+  --border-color: #bbf7d0;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(16, 185, 129, 0.2);
+}
+
+[data-theme='sunset'] {
+  --bg-primary: #fff7ed;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ffedd5;
+  --text-primary: #7c2d12;
+  --text-secondary: #9a3412;
+  --accent-primary: #f97316;
+  --accent-hover: #ea580c;
+  --accent-gradient: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
+  --border-color: #fed7aa;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(249, 115, 22, 0.2);
+}
+
+[data-theme='nord'] {
+  --bg-primary: #eceff4;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e5e9f0;
+  --text-primary: #2e3440;
+  --text-secondary: #4c566a;
+  --accent-primary: #5e81ac;
+  --accent-hover: #81a1c1;
+  --accent-gradient: linear-gradient(135deg, #81a1c1 0%, #88c0d0 100%);
+  --border-color: #d8dee9;
+  --glass-bg: rgba(236, 239, 244, 0.85);
+  --glass-border: rgba(94, 129, 172, 0.2);
+}
+
 @theme {
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);
