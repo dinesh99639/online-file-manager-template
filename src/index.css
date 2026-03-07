@@ -23,6 +23,7 @@
   --color-image: #10b981;
   --color-doc: #3b82f6;
   --color-video: #f43f5e;
+  --hover-highlight: rgba(0, 0, 0, 0.04);
 }
 
 [data-theme='dark'] {
@@ -41,6 +42,7 @@
   --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 8px 12px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 15px 25px rgba(0, 0, 0, 0.7);
+  --hover-highlight: rgba(255, 255, 255, 0.06);
 }
 
 [data-theme='midnight'] {
@@ -164,6 +166,7 @@
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);
   --color-bg-tertiary: var(--bg-tertiary);
+  --color-hover-highlight: var(--hover-highlight);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-accent-primary: var(--accent-primary);

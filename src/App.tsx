@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 import {
-  Folder, FileImage, FileText, FileVideo, MoreVertical,
+  Folder, FileText, FileVideo, MoreVertical,
   Search, Bell, Moon, Sun, UploadCloud, Download, Share2,
   Grid as GridIcon, List as ListIcon, LayoutDashboard, History as HistoryIcon, Star, Trash2,
   Menu, X, ChevronDown, ChevronRight, Plus, FolderOpen,
@@ -135,9 +135,7 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
+  // toggleTheme is currently handled via the themePicker
 
   const renderIcon = (type: string, size = 20) => {
     const color = FILE_COLORS[type] || FILE_COLORS.default;
@@ -617,14 +615,14 @@ export default function App() {
                           {displayedFolders.map(folder => (
                             <div
                               key={`folder-${folder.id}`}
-                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 relative ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.06] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/10' : ''}`}
+                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.08] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/20' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigateToFolder(folder);
                               }}
                             >
                               <div className="flex items-center gap-4 min-w-0">
-                                <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 bg-file-folder/10 text-file-folder shadow-sm">
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-file-folder/10 text-file-folder shadow-sm transition-all">
                                   {renderIcon('folder', 18)}
                                 </div>
                                 <span className="text-[14px] font-bold text-text-primary truncate">{folder.name}</span>
@@ -646,14 +644,14 @@ export default function App() {
                           {displayedFiles.map(file => (
                             <div
                               key={`file-${file.id}`}
-                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 relative ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.06] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/10' : ''}`}
+                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedItem(file);
                               }}
                             >
                               <div className="flex items-center gap-4 min-w-0">
-                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 bg-file-${file.type}/10 text-file-${file.type} shadow-sm`}>
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-file-${file.type}/10 text-file-${file.type} shadow-sm transition-all`}>
                                   {renderIcon(file.type, 18)}
                                 </div>
                                 <span className="text-[14px] font-bold text-text-primary truncate">{file.name}</span>
