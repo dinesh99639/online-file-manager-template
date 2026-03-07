@@ -3,7 +3,7 @@ import {
   Folder, Image as ImageIcon, FileText, Video, MoreVertical,
   Search, Bell, Settings, Moon, Sun, UploadCloud, ChevronRight,
   Grid as GridIcon, List as ListIcon, Home, Clock, Star, Trash2,
-  Menu, X
+  Menu, X, ChevronDown, Plus
 } from 'lucide-react';
 
 // Dummy data
@@ -26,6 +26,16 @@ export default function App() {
   const [viewMode, setViewMode] = useState('grid');
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [spaces, setSpaces] = useState([
+    { id: 1, name: 'Personal Storage', used: '15 GB', total: '20 GB', percentage: 75 },
+    { id: 2, name: 'Work Drive', used: '45 GB', total: '100 GB', percentage: 45 },
+    { id: 3, name: 'Project Phoenix', used: '2 GB', total: '10 GB', percentage: 20 }
+  ]);
+  const [activeSpaceId, setActiveSpaceId] = useState(1);
+  const [isSpaceDropdownOpen, setIsSpaceDropdownOpen] = useState(false);
+  const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] = useState(false);
+
+  const activeSpace = spaces.find(s => s.id === activeSpaceId) || spaces[0];
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -78,6 +88,49 @@ export default function App() {
           </button>
         </div>
 
+        <div className="space-selector">
+          <button
+            className="space-btn"
+            onClick={() => setIsSpaceDropdownOpen(!isSpaceDropdownOpen)}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--accent-primary)' }}></div>
+              {activeSpace.name}
+            </div>
+            <ChevronDown size={16} />
+          </button>
+
+          <div className={`space-dropdown ${isSpaceDropdownOpen ? 'open' : ''}`}>
+            {spaces.map(space => (
+              <div
+                key={space.id}
+                className={`space-item ${activeSpaceId === space.id ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveSpaceId(space.id);
+                  setIsSpaceDropdownOpen(false);
+                  setIsLoading(true);
+                  setTimeout(() => setIsLoading(false), 800);
+                }}
+              >
+                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: activeSpaceId === space.id ? 'var(--accent-primary)' : 'var(--text-secondary)' }}></div>
+                {space.name}
+              </div>
+            ))}
+            <div className="space-divider"></div>
+            <div
+              className="space-item"
+              style={{ color: 'var(--accent-primary)', fontWeight: 500 }}
+              onClick={() => {
+                setIsSpaceDropdownOpen(false);
+                setIsCreateSpaceModalOpen(true);
+              }}
+            >
+              <Plus size={16} />
+              Create new space
+            </div>
+          </div>
+        </div>
+
         <nav>
           <div className="nav-item active">
             <Home size={20} />
@@ -100,13 +153,16 @@ export default function App() {
         <div className="storage-wrapper">
           <div className="storage-header">
             <span>Storage</span>
-            <span>75%</span>
+            <span>{activeSpace.percentage}%</span>
           </div>
           <div className="storage-bar-bg">
-            <div className="storage-bar-fill"></div>
+            <div
+              className="storage-bar-fill"
+              style={{ width: `${activeSpace.percentage}%`, transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
+            ></div>
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-            15 GB of 20 GB used
+            {activeSpace.used} of {activeSpace.total} used
           </div>
         </div>
       </aside>
@@ -252,6 +308,66 @@ export default function App() {
       <button className="fab mobile-show">
         <UploadCloud size={24} />
       </button>
+
+      {/* Create Space Modal */}
+      {isCreateSpaceModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsCreateSpaceModalOpen(false)}>
+          <div className="modal-content animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Create New Space</h2>
+              <button className="icon-btn" onClick={() => setIsCreateSpaceModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Space Name</label>
+              <input
+                id="new-space-name"
+                type="text"
+                className="form-input"
+                placeholder="e.g. Finance Documents"
+                autoFocus
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Storage Quota</label>
+              <select className="form-input">
+                <option>10 GB</option>
+                <option>50 GB</option>
+                <option>100 GB</option>
+                <option>Unlimited</option>
+              </select>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setIsCreateSpaceModalOpen(false)}>
+                Cancel
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  const inputEl = document.getElementById('new-space-name') as HTMLInputElement;
+                  const newName = inputEl?.value || 'New Custom Space';
+                  const newSpace = {
+                    id: spaces.length + 1,
+                    name: newName,
+                    used: '0 GB',
+                    total: '50 GB',
+                    percentage: 0
+                  };
+                  setSpaces([...spaces, newSpace]);
+                  setActiveSpaceId(newSpace.id);
+                  setIsCreateSpaceModalOpen(false);
+                }}
+              >
+                Create Space
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
