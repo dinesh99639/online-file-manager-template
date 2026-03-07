@@ -300,120 +300,140 @@ export default function App() {
               </div>
             ) : (
               <>
-                {viewMode === 'grid' ? (
-                  <div className="animate-fade-in file-grid">
-                    {displayedFolders.map(folder => (
-                      <div
-                        key={`folder-${folder.id}`}
-                        className={`file-card ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
-                        onClick={() => navigateToFolder(folder)}
-                      >
-                        <div className="file-preview">
-                          <div className="preview-icon folder">
-                            <Folder size={48} fill="currentColor" />
-                          </div>
-                        </div>
-                        <div className="file-details">
-                          <div className="type-icon folder">
-                            <Folder size={18} fill="currentColor" />
-                          </div>
-                          <div className="file-info">
-                            <div className="file-name" title={folder.name}>{folder.name}</div>
-                            <div className="file-meta">{folder.items} items • {folder.size}</div>
-                          </div>
-                          <button className="options-btn"><MoreVertical size={16} /></button>
-                        </div>
-                      </div>
-                    ))}
-                    {displayedFiles.map(file => (
-                      <div
-                        key={`file-${file.id}`}
-                        className={`file-card ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
-                        onClick={() => setSelectedItem(file)}
-                      >
-                        <div className="file-preview">
-                          {file.preview ? (
-                            <img src={file.preview} alt={file.name} className="preview-img" loading="lazy" />
-                          ) : (
-                            <div className={`preview-icon ${file.type}`}>
-                              {renderIcon(file.type)}
-                            </div>
-                          )}
-                        </div>
-                        <div className="file-details">
-                          <div className={`type-icon ${file.type}`}>
-                            {renderIcon(file.type)}
-                          </div>
-                          <div className="file-info">
-                            <div className="file-name" title={file.name}>{file.name}</div>
-                            <div className="file-meta">{file.date} • {file.size}</div>
-                          </div>
-                          <button className="options-btn"><MoreVertical size={16} /></button>
-                        </div>
-                      </div>
-                    ))}
+                {displayedFolders.length === 0 && displayedFiles.length === 0 ? (
+                  <div className="empty-state animate-fade-in">
+                    <div className="empty-state-icon">
+                      <Folder size={40} />
+                    </div>
+                    <h3 className="empty-state-title">This folder is empty</h3>
+                    <p className="empty-state-text">
+                      Drag and drop files here to upload, or use the button below to get started.
+                    </p>
+                    <div className="empty-state-action">
+                      <button className="btn-primary">
+                        <Plus size={18} />
+                        Upload Files
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="animate-fade-in list-container">
-                    <div className="list-header">
-                      <div className="col-name">Name</div>
-                      <div className="col-owner mobile-hide">Owner</div>
-                      <div className="col-kind mobile-hide">Kind</div>
-                      <div className="col-date mobile-hide">Date Modified</div>
-                      <div className="col-size">Size</div>
-                      <div className="col-actions"></div>
-                    </div>
-                    <div className="list-body">
-                      {displayedFolders.map(folder => (
-                        <div
-                          key={`folder-${folder.id}`}
-                          className={`list-row ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
-                          onClick={() => navigateToFolder(folder)}
-                        >
-                          <div className="col-name">
-                            <div className="row-icon folder">
-                              <Folder size={20} fill="currentColor" />
+                  <>
+                    {viewMode === 'grid' ? (
+                      <div className="animate-fade-in file-grid">
+                        {displayedFolders.map(folder => (
+                          <div
+                            key={`folder-${folder.id}`}
+                            className={`file-card ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
+                            onClick={() => navigateToFolder(folder)}
+                          >
+                            <div className="file-preview">
+                              <div className="preview-icon folder">
+                                <Folder size={48} fill="currentColor" />
+                              </div>
                             </div>
-                            <span className="row-name">{folder.name}</span>
-                          </div>
-                          <div className="col-owner mobile-hide">
-                            {renderOwnerAvatar(folder.owner)}
-                            {folder.owner}
-                          </div>
-                          <div className="col-kind mobile-hide">Folder</div>
-                          <div className="col-date mobile-hide">{folder.date}</div>
-                          <div className="col-size">{folder.size}</div>
-                          <div className="col-actions">
-                            <button className="icon-btn-small"><MoreVertical size={16} /></button>
-                          </div>
-                        </div>
-                      ))}
-                      {displayedFiles.map(file => (
-                        <div
-                          key={`file-${file.id}`}
-                          className={`list-row ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
-                          onClick={() => setSelectedItem(file)}
-                        >
-                          <div className="col-name">
-                            <div className={`row-icon ${file.type}`}>
-                              {renderIcon(file.type)}
+                            <div className="file-details">
+                              <div className="type-icon folder">
+                                <Folder size={18} fill="currentColor" />
+                              </div>
+                              <div className="file-info">
+                                <div className="file-name" title={folder.name}>{folder.name}</div>
+                                <div className="file-meta">{folder.items} items • {folder.size}</div>
+                              </div>
+                              <button className="options-btn"><MoreVertical size={16} /></button>
                             </div>
-                            <span className="row-name">{file.name}</span>
                           </div>
-                          <div className="col-owner mobile-hide">
-                            {renderOwnerAvatar(file.owner)}
-                            {file.owner}
+                        ))}
+                        {displayedFiles.map(file => (
+                          <div
+                            key={`file-${file.id}`}
+                            className={`file-card ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
+                            onClick={() => setSelectedItem(file)}
+                          >
+                            <div className="file-preview">
+                              {file.preview ? (
+                                <img src={file.preview} alt={file.name} className="preview-img" loading="lazy" />
+                              ) : (
+                                <div className={`preview-icon ${file.type}`}>
+                                  {renderIcon(file.type)}
+                                </div>
+                              )}
+                            </div>
+                            <div className="file-details">
+                              <div className={`type-icon ${file.type}`}>
+                                {renderIcon(file.type)}
+                              </div>
+                              <div className="file-info">
+                                <div className="file-name" title={file.name}>{file.name}</div>
+                                <div className="file-meta">{file.date} • {file.size}</div>
+                              </div>
+                              <button className="options-btn"><MoreVertical size={16} /></button>
+                            </div>
                           </div>
-                          <div className="col-kind mobile-hide">{getKindString(file.type)}</div>
-                          <div className="col-date mobile-hide">{file.date}</div>
-                          <div className="col-size">{file.size}</div>
-                          <div className="col-actions">
-                            <button className="icon-btn-small"><MoreVertical size={16} /></button>
-                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="animate-fade-in list-container">
+                        <div className="list-header">
+                          <div className="col-name">Name</div>
+                          <div className="col-owner mobile-hide">Owner</div>
+                          <div className="col-kind mobile-hide">Kind</div>
+                          <div className="col-date mobile-hide">Date Modified</div>
+                          <div className="col-size">Size</div>
+                          <div className="col-actions"></div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                        <div className="list-body">
+                          {displayedFolders.map(folder => (
+                            <div
+                              key={`folder-${folder.id}`}
+                              className={`list-row ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
+                              onClick={() => navigateToFolder(folder)}
+                            >
+                              <div className="col-name">
+                                <div className="row-icon folder">
+                                  <Folder size={20} fill="currentColor" />
+                                </div>
+                                <span className="row-name">{folder.name}</span>
+                              </div>
+                              <div className="col-owner mobile-hide">
+                                {renderOwnerAvatar(folder.owner)}
+                                {folder.owner}
+                              </div>
+                              <div className="col-kind mobile-hide">Folder</div>
+                              <div className="col-date mobile-hide">{folder.date}</div>
+                              <div className="col-size">{folder.size}</div>
+                              <div className="col-actions">
+                                <button className="icon-btn-small"><MoreVertical size={16} /></button>
+                              </div>
+                            </div>
+                          ))}
+                          {displayedFiles.map(file => (
+                            <div
+                              key={`file-${file.id}`}
+                              className={`list-row ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
+                              onClick={() => setSelectedItem(file)}
+                            >
+                              <div className="col-name">
+                                <div className={`row-icon ${file.type}`}>
+                                  {renderIcon(file.type)}
+                                </div>
+                                <span className="row-name">{file.name}</span>
+                              </div>
+                              <div className="col-owner mobile-hide">
+                                {renderOwnerAvatar(file.owner)}
+                                {file.owner}
+                              </div>
+                              <div className="col-kind mobile-hide">{getKindString(file.type)}</div>
+                              <div className="col-date mobile-hide">{file.date}</div>
+                              <div className="col-size">{file.size}</div>
+                              <div className="col-actions">
+                                <button className="icon-btn-small"><MoreVertical size={16} /></button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
