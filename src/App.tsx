@@ -3,23 +3,27 @@ import {
   Folder, Image as ImageIcon, FileText, Video, MoreVertical,
   Search, Bell, Settings, Moon, Sun, UploadCloud, Download, Share2,
   Grid as GridIcon, List as ListIcon, Home, Clock, Star, Trash2,
-  Menu, X, ChevronDown, Plus
+  Menu, X, ChevronDown, ChevronRight, Plus
 } from 'lucide-react';
 
 // Dummy data
 const files = [
-  { id: 1, name: 'Project Requirements.pdf', type: 'doc', size: '2.4 MB', date: 'Oct 24, 2023', owner: 'me' },
-  { id: 2, name: 'Website Mockups.png', type: 'image', size: '4.8 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop' },
-  { id: 3, name: 'Marketing Campaign.mp4', type: 'video', size: '124 MB', date: 'Oct 21, 2023', owner: 'me', preview: 'https://images.unsplash.com/photo-1516280440502-85f5e55e5b38?q=80&w=400&auto=format&fit=crop' },
-  { id: 4, name: 'Q3 Financial Report.xlsx', type: 'doc', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.' },
-  { id: 5, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me' }
+  { id: 1, parentId: null, name: 'Project Requirements.pdf', type: 'doc', size: '2.4 MB', date: 'Oct 24, 2023', owner: 'me' },
+  { id: 2, parentId: null, name: 'Website Mockups.png', type: 'image', size: '4.8 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop' },
+  { id: 3, parentId: null, name: 'Marketing Campaign.mp4', type: 'video', size: '124 MB', date: 'Oct 21, 2023', owner: 'me', preview: 'https://images.unsplash.com/photo-1516280440502-85f5e55e5b38?q=80&w=400&auto=format&fit=crop' },
+  { id: 4, parentId: null, name: 'Q3 Financial Report.xlsx', type: 'doc', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.' },
+  { id: 5, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me' },
+  { id: 6, parentId: 1, name: 'Logo Iterations.zip', type: 'doc', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me' },
+  { id: 7, parentId: 1, name: 'Color Palette.png', type: 'image', size: '1.1 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?q=80&w=400&auto=format&fit=crop' },
 ];
 
 const folders = [
-  { id: 1, name: 'Design Assets', items: 42, size: '2.4 GB', date: 'Oct 25, 2023', owner: 'me' },
-  { id: 2, name: 'Client Documents', items: 128, size: '8.1 GB', date: 'Oct 12, 2023', owner: 'me' },
-  { id: 3, name: 'Personal', items: 15, size: '450 MB', date: 'Sep 30, 2023', owner: 'me' },
-  { id: 4, name: 'Project Phoenix', items: 84, size: '1.2 GB', date: 'Aug 14, 2023', owner: 'Sarah J.' }
+  { id: 1, parentId: null, name: 'Design Assets', items: 42, size: '2.4 GB', date: 'Oct 25, 2023', owner: 'me' },
+  { id: 2, parentId: null, name: 'Client Documents', items: 128, size: '8.1 GB', date: 'Oct 12, 2023', owner: 'me' },
+  { id: 3, parentId: null, name: 'Personal', items: 15, size: '450 MB', date: 'Sep 30, 2023', owner: 'me' },
+  { id: 4, parentId: null, name: 'Project Phoenix', items: 84, size: '1.2 GB', date: 'Aug 14, 2023', owner: 'Sarah J.' },
+  { id: 5, parentId: 1, name: 'Icons', items: 12, size: '5 MB', date: 'Oct 25, 2023', owner: 'me' },
+  { id: 6, parentId: 1, name: 'Fonts', items: 4, size: '20 MB', date: 'Oct 24, 2023', owner: 'me' }
 ];
 
 export default function App() {
@@ -40,8 +44,12 @@ export default function App() {
   const [isSpaceDropdownOpen, setIsSpaceDropdownOpen] = useState(false);
   const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [currentPath, setCurrentPath] = useState([{ id: null as number | null, name: 'My Files' }]);
 
   const activeSpace = spaces.find(s => s.id === activeSpaceId) || spaces[0];
+  const currentFolderId = currentPath[currentPath.length - 1].id;
+  const displayedFolders = folders.filter(f => f.parentId === currentFolderId);
+  const displayedFiles = files.filter(f => f.parentId === currentFolderId);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -92,9 +100,25 @@ export default function App() {
   };
 
   const handleRefreshSimulate = () => {
+    setSelectedItem(null);
     setIsLoading(true);
     setIsSidebarOpen(false);
-    setTimeout(() => setIsLoading(false), 1000);
+    setTimeout(() => setIsLoading(false), 200);
+  };
+
+  const navigateToFolder = (folder: any) => {
+    setSelectedItem(null);
+    setIsLoading(true);
+    setCurrentPath([...currentPath, { id: folder.id, name: folder.name }]);
+    setTimeout(() => setIsLoading(false), 200);
+  };
+
+  const navigateToBreadcrumb = (index: number) => {
+    if (index === currentPath.length - 1) return;
+    setSelectedItem(null);
+    setIsLoading(true);
+    setCurrentPath(currentPath.slice(0, index + 1));
+    setTimeout(() => setIsLoading(false), 200);
   };
 
   return (
@@ -239,7 +263,19 @@ export default function App() {
           <section className="content-area">
             <div className="toolbar animate-fade-in" style={{ animationDelay: '0.1s', justifyContent: 'space-between', marginBottom: '24px' }}>
               <div className="breadcrumbs" style={{ marginBottom: 0 }}>
-                <span className="breadcrumb-current">My Files</span>
+                {currentPath.map((item, index) => (
+                  <div key={item.id || 'root'} style={{ display: 'flex', alignItems: 'center' }}>
+                    <span
+                      className={index === currentPath.length - 1 ? "breadcrumb-current" : "breadcrumb-item"}
+                      onClick={() => navigateToBreadcrumb(index)}
+                    >
+                      {item.name}
+                    </span>
+                    {index < currentPath.length - 1 && (
+                      <ChevronRight size={16} className="breadcrumb-separator" />
+                    )}
+                  </div>
+                ))}
               </div>
 
               <div className="view-toggles">
@@ -265,12 +301,12 @@ export default function App() {
             ) : (
               <>
                 {viewMode === 'grid' ? (
-                  <div className="animate-fade-in file-grid" style={{ animationDelay: '0.3s' }}>
-                    {folders.map(folder => (
+                  <div className="animate-fade-in file-grid">
+                    {displayedFolders.map(folder => (
                       <div
                         key={`folder-${folder.id}`}
                         className={`file-card ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
-                        onClick={() => setSelectedItem({ ...folder, type: 'folder' })}
+                        onClick={() => navigateToFolder(folder)}
                       >
                         <div className="file-preview">
                           <div className="preview-icon folder">
@@ -289,7 +325,7 @@ export default function App() {
                         </div>
                       </div>
                     ))}
-                    {files.map(file => (
+                    {displayedFiles.map(file => (
                       <div
                         key={`file-${file.id}`}
                         className={`file-card ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
@@ -318,7 +354,7 @@ export default function App() {
                     ))}
                   </div>
                 ) : (
-                  <div className="animate-fade-in list-container" style={{ animationDelay: '0.3s' }}>
+                  <div className="animate-fade-in list-container">
                     <div className="list-header">
                       <div className="col-name">Name</div>
                       <div className="col-owner mobile-hide">Owner</div>
@@ -328,11 +364,11 @@ export default function App() {
                       <div className="col-actions"></div>
                     </div>
                     <div className="list-body">
-                      {folders.map(folder => (
+                      {displayedFolders.map(folder => (
                         <div
                           key={`folder-${folder.id}`}
                           className={`list-row ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
-                          onClick={() => setSelectedItem({ ...folder, type: 'folder' })}
+                          onClick={() => navigateToFolder(folder)}
                         >
                           <div className="col-name">
                             <div className="row-icon folder">
@@ -352,7 +388,7 @@ export default function App() {
                           </div>
                         </div>
                       ))}
-                      {files.map(file => (
+                      {displayedFiles.map(file => (
                         <div
                           key={`file-${file.id}`}
                           className={`list-row ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
