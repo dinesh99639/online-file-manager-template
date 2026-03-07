@@ -226,7 +226,7 @@ export default function App() {
   };
 
   return (
-    <div className={`flex h-screen w-screen overflow-hidden bg-bg-primary text-text-primary transition-colors duration-500 font-jakarta antialiased selection:bg-accent-primary/20 ${theme === 'midnight' ? 'midnight-stars' : ''}`}>
+    <div className="flex h-screen w-screen overflow-hidden bg-bg-primary text-text-primary transition-colors duration-500 font-jakarta antialiased selection:bg-accent-primary/20">
       {/* Sidebar Overlay */}
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 backdrop-blur-sm animate-fade-in md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
 
