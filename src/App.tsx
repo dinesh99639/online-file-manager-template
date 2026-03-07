@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  Folder, Image as ImageIcon, FileText, Video, MoreVertical,
-  Search, Bell, Settings, Moon, Sun, UploadCloud, Download, Share2,
-  Grid as GridIcon, List as ListIcon, Home, Clock, Star, Trash2,
-  Menu, X, ChevronDown, ChevronRight, Plus
+  Folder, FileImage, FileText, FileVideo, MoreVertical,
+  Search, Bell, Moon, Sun, UploadCloud, Download, Share2,
+  Grid as GridIcon, List as ListIcon, LayoutDashboard, History as HistoryIcon, Star, Trash2,
+  Menu, X, ChevronDown, ChevronRight, Plus, FolderOpen,
+  FileArchive, FileSpreadsheet, File as FileIcon, GalleryVertical, Clapperboard, Package
 } from 'lucide-react';
 
 // Dummy data
@@ -11,9 +12,9 @@ const files = [
   { id: 1, parentId: null, name: 'Project Requirements.pdf', type: 'doc', size: '2.4 MB', date: 'Oct 24, 2023', owner: 'me' },
   { id: 2, parentId: null, name: 'Website Mockups.png', type: 'image', size: '4.8 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop' },
   { id: 3, parentId: null, name: 'Marketing Campaign.mp4', type: 'video', size: '124 MB', date: 'Oct 21, 2023', owner: 'me', preview: 'https://images.unsplash.com/photo-1516280440502-85f5e55e5b38?q=80&w=400&auto=format&fit=crop' },
-  { id: 4, parentId: null, name: 'Q3 Financial Report.xlsx', type: 'doc', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.' },
+  { id: 4, parentId: null, name: 'Q3 Financial Report.xlsx', type: 'spreadsheet', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.' },
   { id: 5, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me' },
-  { id: 6, parentId: 1, name: 'Logo Iterations.zip', type: 'doc', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me' },
+  { id: 6, parentId: 1, name: 'Logo Iterations.zip', type: 'archive', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me' },
   { id: 7, parentId: 1, name: 'Color Palette.png', type: 'image', size: '1.1 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?q=80&w=400&auto=format&fit=crop' },
 ];
 
@@ -25,6 +26,16 @@ const folders = [
   { id: 5, parentId: 1, name: 'Icons', items: 12, size: '5 MB', date: 'Oct 25, 2023', owner: 'me' },
   { id: 6, parentId: 1, name: 'Fonts', items: 4, size: '20 MB', date: 'Oct 24, 2023', owner: 'me' }
 ];
+
+const FILE_COLORS: Record<string, string> = {
+  folder: '#f59e0b',
+  image: '#ec4899',
+  doc: '#3b82f6',
+  video: '#f43f5e',
+  archive: '#8b5cf6',
+  spreadsheet: '#10b981',
+  default: '#64748b'
+};
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -45,6 +56,7 @@ export default function App() {
   const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [currentPath, setCurrentPath] = useState([{ id: null as number | null, name: 'My Files' }]);
+  const spaceDropdownRef = useRef<HTMLDivElement>(null);
 
   const activeSpace = spaces.find(s => s.id === activeSpaceId) || spaces[0];
   const currentFolderId = currentPath[currentPath.length - 1].id;
@@ -68,17 +80,38 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Handle outside click for space dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (spaceDropdownRef.current && !spaceDropdownRef.current.contains(event.target as Node)) {
+        setIsSpaceDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  const renderIcon = (type: string) => {
+  const renderIcon = (type: string, size = 20) => {
+    const color = FILE_COLORS[type] || FILE_COLORS.default;
+    const props = {
+      size,
+      fill: color,
+      fillOpacity: 0.12,
+      strokeWidth: 1.75,
+      style: { color: color }
+    };
     switch (type) {
-      case 'folder': return <Folder fill="currentColor" />;
-      case 'image': return <ImageIcon fill="currentColor" />;
-      case 'doc': return <FileText fill="currentColor" />;
-      case 'video': return <Video fill="currentColor" />;
-      default: return <FileText fill="currentColor" />;
+      case 'folder': return <FolderOpen {...props} />;
+      case 'image': return <GalleryVertical {...props} />;
+      case 'doc': return <FileText {...props} />;
+      case 'video': return <Clapperboard {...props} />;
+      case 'archive': return <Package {...props} />;
+      case 'spreadsheet': return <FileSpreadsheet {...props} />;
+      default: return <FileIcon {...props} />;
     }
   };
 
@@ -88,15 +121,17 @@ export default function App() {
       case 'image': return 'Image';
       case 'doc': return 'Document';
       case 'video': return 'Video';
+      case 'archive': return 'Archive';
+      case 'spreadsheet': return 'Spreadsheet';
       default: return 'File';
     }
   };
 
   const renderOwnerAvatar = (owner: string) => {
     if (owner === 'me') {
-      return <img src="https://ui-avatars.com/api/?name=Dinesh&background=6366f1&color=fff" alt="me" className="row-avatar" />;
+      return <img src="https://ui-avatars.com/api/?name=Dinesh&background=6366f1&color=fff" alt="me" className="w-6 h-6 rounded-full object-cover mr-2" />;
     }
-    return <div className="row-avatar-fallback">{owner.charAt(0)}</div>;
+    return <div className="w-6 h-6 rounded-full bg-bg-tertiary text-text-secondary flex items-center justify-center text-[10px] mr-2 font-bold">{owner.charAt(0)}</div>;
   };
 
   const handleRefreshSimulate = () => {
@@ -107,56 +142,72 @@ export default function App() {
   };
 
   const navigateToFolder = (folder: any) => {
-    setSelectedItem(null);
+    setSelectedItem({ ...folder, type: 'folder' });
     setIsLoading(true);
     setCurrentPath([...currentPath, { id: folder.id, name: folder.name }]);
     setTimeout(() => setIsLoading(false), 200);
   };
 
+  const deselectToFolder = () => {
+    const currentFolderId = currentPath[currentPath.length - 1].id;
+    if (currentFolderId === null) {
+      setSelectedItem(null);
+    } else {
+      const folder = folders.find(f => f.id === currentFolderId);
+      if (folder) setSelectedItem({ ...folder, type: 'folder' });
+    }
+  };
+
   const navigateToBreadcrumb = (index: number) => {
     if (index === currentPath.length - 1) return;
-    setSelectedItem(null);
+    const breadcrumb = currentPath[index];
+    if (breadcrumb.id === null) {
+      setSelectedItem(null);
+    } else {
+      const folder = folders.find(f => f.id === breadcrumb.id);
+      if (folder) setSelectedItem({ ...folder, type: 'folder' });
+    }
     setIsLoading(true);
     setCurrentPath(currentPath.slice(0, index + 1));
     setTimeout(() => setIsLoading(false), 200);
   };
 
   return (
-    <div className="app-container">
+    <div className="flex h-screen w-screen overflow-hidden bg-bg-primary text-text-primary transition-colors duration-500 font-jakarta antialiased selection:bg-accent-primary/20">
       {/* Sidebar Overlay */}
-      {isSidebarOpen && <div className="sidebar-overlay animate-fade-in" onClick={() => setIsSidebarOpen(false)}></div>}
+      {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-20 backdrop-blur-sm animate-fade-in md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-        <div className="logo" style={{ justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="logo-icon">
-              <UploadCloud size={24} />
+      <aside className={`fixed md:relative top-0 left-0 bottom-0 w-[240px] bg-bg-tertiary border-r border-border-color flex flex-col p-6 z-30 transition-all duration-400 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full shadow-2xl'}`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-10 px-1">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-accent-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-accent-primary/20 transform-gpu hover:scale-105 active:scale-95">
+              <UploadCloud size={20} strokeWidth={2.5} />
             </div>
-            TeleFiles
+            <span className="text-xl font-extrabold tracking-tight">TeleFiles</span>
           </div>
-          <button className="icon-btn mobile-close-btn" onClick={() => setIsSidebarOpen(false)}>
-            <X size={20} />
+          <button className="flex items-center justify-center p-2 rounded-xl border border-border-color bg-bg-secondary text-text-secondary transition-all hover:bg-bg-primary hover:text-text-primary md:hidden" onClick={() => setIsSidebarOpen(false)}>
+            <X size={18} />
           </button>
         </div>
 
-        <div className="space-selector">
+        <div className="relative mb-6" ref={spaceDropdownRef}>
           <button
-            className="space-btn"
+            className="flex items-center justify-between w-full p-3 px-4 bg-bg-tertiary border border-border-color rounded-xl cursor-pointer text-text-primary font-medium transition-colors hover:border-accent-primary"
             onClick={() => setIsSpaceDropdownOpen(!isSpaceDropdownOpen)}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--accent-primary)' }}></div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-accent-primary"></div>
               {activeSpace.name}
             </div>
             <ChevronDown size={16} />
           </button>
 
-          <div className={`space-dropdown ${isSpaceDropdownOpen ? 'open' : ''}`}>
+          <div className={`absolute top-full left-0 w-full mt-2 bg-bg-secondary border border-border-color rounded-xl shadow-lg z-50 overflow-hidden ${isSpaceDropdownOpen ? 'block animate-fade-in' : 'hidden'}`}>
             {spaces.map(space => (
               <div
                 key={space.id}
-                className={`space-item ${activeSpaceId === space.id ? 'active' : ''}`}
+                className={`p-3 px-4 cursor-pointer flex items-center gap-3 text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary ${activeSpaceId === space.id ? 'bg-accent-primary/10 text-accent-primary' : ''}`}
                 onClick={() => {
                   setActiveSpaceId(space.id);
                   setIsSpaceDropdownOpen(false);
@@ -164,14 +215,13 @@ export default function App() {
                   setTimeout(() => setIsLoading(false), 800);
                 }}
               >
-                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: activeSpaceId === space.id ? 'var(--accent-primary)' : 'var(--text-secondary)' }}></div>
+                <div className={`w-2 h-2 rounded-full ${activeSpaceId === space.id ? 'bg-accent-primary' : 'bg-text-secondary'}`}></div>
                 {space.name}
               </div>
             ))}
-            <div className="space-divider"></div>
+            <div className="h-px bg-border-color my-1"></div>
             <div
-              className="space-item"
-              style={{ color: 'var(--accent-primary)', fontWeight: 500 }}
+              className="p-3 px-4 cursor-pointer flex items-center gap-3 text-accent-primary font-medium transition-colors hover:bg-bg-tertiary"
               onClick={() => {
                 setIsSpaceDropdownOpen(false);
                 setIsCreateSpaceModalOpen(true);
@@ -183,134 +233,161 @@ export default function App() {
           </div>
         </div>
 
-        <nav>
-          <div className="nav-item active">
-            <Home size={20} />
-            <span>My Files</span>
+        <nav className="flex-1 space-y-1">
+          <div
+            className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentFolderId === null ? 'text-text-primary font-bold bg-bg-primary shadow-sm shadow-accent-primary/5 ring-1 ring-border-color/50' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary'}`}
+            onClick={() => navigateToBreadcrumb(0)}
+          >
+            <LayoutDashboard size={18} className={currentFolderId === null ? "text-accent-primary" : ""} />
+            <span className="text-[14px]">My Files</span>
           </div>
-          <div className="nav-item" onClick={handleRefreshSimulate}>
-            <Clock size={20} />
-            <span>Recent</span>
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={handleRefreshSimulate}>
+            <HistoryIcon size={18} className="transition-transform group-hover:rotate-[-10deg]" />
+            <span className="text-[14px] font-semibold">Recent</span>
           </div>
-          <div className="nav-item">
-            <Star size={20} />
-            <span>Starred</span>
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group">
+            <Star size={18} className="transition-transform group-hover:scale-110" />
+            <span className="text-[14px] font-semibold">Starred</span>
           </div>
-          <div className="nav-item">
-            <Trash2 size={20} />
-            <span>Trash</span>
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group">
+            <Trash2 size={18} />
+            <span className="text-[14px] font-semibold">Trash</span>
           </div>
+          <div className="h-px bg-border-color/50 my-4 mx-2"></div>
         </nav>
 
-        <div className="storage-wrapper">
-          <div className="storage-header">
-            <span>Storage</span>
-            <span>{activeSpace.percentage}%</span>
-          </div>
-          <div className="storage-bar-bg">
-            <div
-              className="storage-bar-fill"
-              style={{ width: `${activeSpace.percentage}%`, transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
-            ></div>
-          </div>
-          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-            {activeSpace.used} of {activeSpace.total} used
+        <div className="mt-auto px-1">
+          <div className="bg-bg-secondary/40 border border-border-color/50 rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Storage</span>
+              <span className="text-xs font-extrabold text-text-primary">{activeSpace.percentage}%</span>
+            </div>
+            <div className="h-1.5 bg-bg-primary rounded-full overflow-hidden shadow-inner">
+              <div
+                className="h-full bg-accent-gradient rounded-full shadow-[0_0_8px_rgba(99,102,241,0.4)]"
+                style={{ width: `${activeSpace.percentage}%`, transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              ></div>
+            </div>
+            <div className="text-[11px] text-text-secondary font-bold mt-2.5 flex justify-between">
+              <span>Used: {activeSpace.used}</span>
+              <span>Total: {activeSpace.total}</span>
+            </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="main-content">
+      <main className="flex-1 flex flex-col min-w-0 bg-bg-primary relative" onClick={deselectToFolder}>
         {/* Topbar */}
-        <header className="topbar">
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button className="menu-btn" onClick={() => setIsSidebarOpen(true)}>
-              <Menu size={24} />
+        <header
+          className="h-[64px] min-h-[64px] flex items-center justify-between px-6 md:px-8 bg-glass-bg backdrop-blur-xl border-b border-border-color z-10 shadow-sm sticky top-0"
+          onClick={(e) => {
+            // Only stop if they didn't click the "root" of the header
+            if (e.target !== e.currentTarget) e.stopPropagation();
+          }}
+        >
+          <div className="flex items-center flex-1 max-w-xl">
+            <button className="flex items-center justify-center p-2 rounded-xl bg-bg-tertiary mr-4 shadow-sm hover:bg-bg-secondary transition-all md:hidden" onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(true); }}>
+              <Menu size={20} />
             </button>
-            <div className="search-bar">
-              <Search size={18} color="var(--text-secondary)" />
-              <input type="text" placeholder="Search files, folders..." className="search-input" />
+            <div className="group relative flex items-center gap-3 bg-bg-tertiary/50 p-2.5 px-5 rounded-2xl border border-border-color w-full transition-all hover:bg-bg-tertiary focus-within:bg-bg-secondary focus-within:shadow-md focus-within:border-accent-primary focus-within:ring-1 focus-within:ring-accent-primary/20">
+              <Search size={18} className="text-text-secondary group-focus-within:text-accent-primary transition-colors" />
+              <input type="text" placeholder="Search files, spaces..." className="bg-transparent border-none outline-none text-sm text-text-primary w-full placeholder:text-text-secondary/50 font-medium" />
+              <div className="hidden sm:flex items-center gap-1.5 bg-bg-primary border border-border-color rounded-lg px-2 py-0.5 text-[10px] font-bold text-text-secondary shadow-sm">
+                <span>⌘</span><span>K</span>
+              </div>
             </div>
           </div>
 
-          <div className="actions-group">
-            <button className="btn-primary mobile-hide">
-              <UploadCloud size={18} />
+          <div className="flex items-center gap-2 md:gap-3 ml-4">
+            <button className="hidden sm:flex items-center gap-2.5 bg-accent-gradient text-white p-2.5 px-6 rounded-2xl font-bold text-sm shadow-lg shadow-accent-primary/25 hover:translate-y-[-1px] hover:shadow-xl active:translate-y-0 active:scale-95 group transform-gpu transition-all">
+              <UploadCloud size={18} className="transition-transform group-hover:rotate-12" />
               Upload
             </button>
-            <button className="icon-btn" onClick={toggleTheme}>
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+
+            <div className="h-8 w-px bg-border-color mx-2 hidden md:block"></div>
+
+            <button className="flex items-center justify-center p-2.5 rounded-xl border border-transparent hover:border-border-color hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-90" onClick={toggleTheme}>
+              {theme === 'light' ? <Moon size={19} /> : <Sun size={19} />}
             </button>
-            <button className="icon-btn mobile-hide">
-              <Bell size={20} />
-            </button>
-            <button className="icon-btn mobile-hide">
-              <Settings size={20} />
+            <button className="hidden md:flex items-center justify-center p-2.5 rounded-xl border border-transparent hover:border-border-color hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all relative">
+              <Bell size={19} />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-bg-secondary"></span>
             </button>
 
-            <div className="user-profile">
-              <img src="https://ui-avatars.com/api/?name=Dinesh&background=6366f1&color=fff" alt="User" className="avatar" />
-              <div className="user-info">
-                <span className="user-name">Dinesh M.</span>
-                <span className="user-role">Pro Plan</span>
+            <div className="flex items-center gap-3 ml-2 pl-3 border-l border-border-color group cursor-pointer">
+              <div className="relative">
+                <img src="https://ui-avatars.com/api/?name=Dinesh&background=6366f1&color=fff" alt="User" className="w-9 h-9 rounded-xl object-cover ring-2 ring-border-color/50 transition-all group-hover:ring-accent-primary/50 group-hover:scale-105" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-bg-secondary"></span>
               </div>
             </div>
           </div>
         </header>
 
-        <div className="content-wrapper" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div className="flex-1 flex overflow-hidden">
           {/* Content Area */}
-          <section className="content-area">
-            <div className="toolbar animate-fade-in" style={{ animationDelay: '0.1s', justifyContent: 'space-between', marginBottom: '24px' }}>
-              <div className="breadcrumbs" style={{ marginBottom: 0 }}>
-                {currentPath.map((item, index) => (
-                  <div key={item.id || 'root'} style={{ display: 'flex', alignItems: 'center' }}>
-                    <span
-                      className={index === currentPath.length - 1 ? "breadcrumb-current" : "breadcrumb-item"}
-                      onClick={() => navigateToBreadcrumb(index)}
-                    >
-                      {item.name}
-                    </span>
-                    {index < currentPath.length - 1 && (
-                      <ChevronRight size={16} className="breadcrumb-separator" />
-                    )}
-                  </div>
-                ))}
+          <section
+            className="flex-1 p-6 md:p-8 overflow-y-auto min-w-0 flex flex-col"
+            onClick={(e) => {
+              e.stopPropagation();
+              deselectToFolder();
+            }}
+          >
+            <div className="flex items-center justify-between mb-8 animate-fade-in transform-gpu" onClick={(e) => e.stopPropagation()}>
+              <div>
+                <div className="flex items-center gap-1.5 text-text-secondary text-[13px] font-bold mb-1 ml-0.5">
+                  {currentPath.map((item, index) => (
+                    <div key={item.id || 'root'} className="flex items-center">
+                      <span
+                        className={`cursor-pointer transition-all p-1 px-1.5 rounded-lg border border-transparent ${index === currentPath.length - 1 ? "text-text-primary font-extrabold bg-bg-secondary border-border-color px-2.5 shadow-sm" : "hover:text-text-primary hover:bg-bg-secondary hover:border-border-color"}`}
+                        onClick={() => navigateToBreadcrumb(index)}
+                      >
+                        {item.name}
+                      </span>
+                      {index < currentPath.length - 1 && (
+                        <ChevronRight size={14} className="mx-0.5 opacity-40" />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="view-toggles">
+              <div className="flex bg-bg-tertiary/50 p-1.5 rounded-2xl border border-border-color shadow-sm">
                 <button
-                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  className={`p-2 px-3 rounded-xl transition-all flex items-center gap-2 font-bold text-xs ${viewMode === 'grid' ? 'bg-bg-secondary text-accent-primary shadow-sm border border-border-color ring-1 ring-accent-primary/5' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setViewMode('grid')}
                 >
-                  <GridIcon size={18} />
+                  <GridIcon size={16} strokeWidth={2.5} />
+                  Grid
                 </button>
+                <div className="w-px h-4 bg-border-color mx-1 self-center"></div>
                 <button
-                  className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  className={`p-2 px-3 rounded-xl transition-all flex items-center gap-2 font-bold text-xs ${viewMode === 'list' ? 'bg-bg-secondary text-accent-primary shadow-sm border border-border-color ring-1 ring-accent-primary/5' : 'text-text-secondary hover:text-text-primary'}`}
                   onClick={() => setViewMode('list')}
                 >
-                  <ListIcon size={18} />
+                  <ListIcon size={16} strokeWidth={2.5} />
+                  List
                 </button>
               </div>
             </div>
 
             {isLoading ? (
-              <div className="loader-container animate-fade-in">
-                <div className="loader"></div>
+              <div className="flex items-center justify-center h-[200px] animate-fade-in">
+                <div className="w-6 h-6 border-[3px] border-border-color border-t-accent-primary rounded-full animate-spin"></div>
               </div>
             ) : (
               <>
                 {displayedFolders.length === 0 && displayedFiles.length === 0 ? (
-                  <div className="empty-state animate-fade-in">
-                    <div className="empty-state-icon">
+                  <div className="flex flex-col items-center justify-center text-center p-20 bg-bg-secondary border-2 border-dashed border-border-color rounded-[20px] mt-5 animate-fade-in shadow-sm">
+                    <div className="w-20 h-20 bg-bg-tertiary rounded-[24px] flex items-center justify-center text-text-secondary mb-6 opacity-80 mix-blend-luminosity shadow-sm">
                       <Folder size={40} />
                     </div>
-                    <h3 className="empty-state-title">This folder is empty</h3>
-                    <p className="empty-state-text">
+                    <h3 className="text-xl font-bold text-text-primary mb-2">This folder is empty</h3>
+                    <p className="text-sm text-text-secondary max-w-xs mx-auto mb-6 leading-relaxed">
                       Drag and drop files here to upload, or use the button below to get started.
                     </p>
-                    <div className="empty-state-action">
-                      <button className="btn-primary">
+                    <div className="flex gap-3 justify-center">
+                      <button className="flex items-center gap-2 bg-accent-gradient text-white p-2.5 px-6 rounded-xl font-semibold cursor-pointer transition-all hover:translate-y-[-0.5px] hover:shadow-lg active:translate-y-0 active:scale-95 shadow-md">
                         <Plus size={18} />
                         Upload Files
                       </button>
@@ -319,114 +396,132 @@ export default function App() {
                 ) : (
                   <>
                     {viewMode === 'grid' ? (
-                      <div className="animate-fade-in file-grid">
+                      <div className="animate-fade-in grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-7 pb-10">
                         {displayedFolders.map(folder => (
                           <div
                             key={`folder-${folder.id}`}
-                            className={`file-card ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
-                            onClick={() => navigateToFolder(folder)}
+                            className={`group bg-bg-secondary rounded-[22px] border border-border-color p-3.5 transition-all duration-400 cursor-pointer hover:shadow-soft hover:border-file-folder/40 hover:-translate-y-1.5 transform-gpu ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'border-file-folder ring-4 ring-file-folder/5 shadow-lg' : 'hover:bg-bg-tertiary/20'}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigateToFolder(folder);
+                            }}
                           >
-                            <div className="file-preview">
-                              <div className="preview-icon folder">
-                                <Folder size={48} fill="currentColor" />
+                            <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
+                              <div className="text-file-folder relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md">
+                                {renderIcon('folder', 56)}
                               </div>
+                              <div className="absolute inset-0 bg-gradient-to-br from-file-folder/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
-                            <div className="file-details">
-                              <div className="type-icon folder">
-                                <Folder size={18} fill="currentColor" />
+                            <div className="flex flex-col gap-1.5 px-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[14px] font-extrabold text-text-primary truncate" title={folder.name}>{folder.name}</span>
+                                <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all"><MoreVertical size={14} /></button>
                               </div>
-                              <div className="file-info">
-                                <div className="file-name" title={folder.name}>{folder.name}</div>
-                                <div className="file-meta">{folder.items} items • {folder.size}</div>
+                              <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
+                                <span className="bg-file-folder/10 text-file-folder px-2 py-0.5 rounded-md">{folder.items} items</span>
+                                <span>•</span>
+                                <span>{folder.size}</span>
                               </div>
-                              <button className="options-btn"><MoreVertical size={16} /></button>
                             </div>
                           </div>
                         ))}
                         {displayedFiles.map(file => (
                           <div
                             key={`file-${file.id}`}
-                            className={`file-card ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
-                            onClick={() => setSelectedItem(file)}
+                            className={`group bg-bg-secondary rounded-[22px] border border-border-color p-4 transition-all duration-400 cursor-pointer hover:shadow-soft hover:border-file-${file.type}/40 hover:-translate-y-1.5 transform-gpu ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'border-accent-primary ring-4 ring-accent-primary/5 shadow-lg' : 'hover:bg-bg-tertiary/20'}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedItem(file);
+                            }}
                           >
-                            <div className="file-preview">
+                            <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
                               {file.preview ? (
-                                <img src={file.preview} alt={file.name} className="preview-img" loading="lazy" />
+                                <img src={file.preview} alt={file.name} className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-115" loading="lazy" />
                               ) : (
-                                <div className={`preview-icon ${file.type}`}>
-                                  {renderIcon(file.type)}
+                                <div className={`text-file-${file.type} relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md`}>
+                                  {renderIcon(file.type, 56)}
                                 </div>
                               )}
+                              <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-transparent opacity-100 transition-opacity"></div>
                             </div>
-                            <div className="file-details">
-                              <div className={`type-icon ${file.type}`}>
-                                {renderIcon(file.type)}
+                            <div className="flex flex-col gap-1.5 px-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[14px] font-extrabold text-text-primary truncate" title={file.name}>{file.name}</span>
+                                <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all"><MoreVertical size={14} /></button>
                               </div>
-                              <div className="file-info">
-                                <div className="file-name" title={file.name}>{file.name}</div>
-                                <div className="file-meta">{file.date} • {file.size}</div>
+                              <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
+                                <span className={`text-file-${file.type} opacity-80 uppercase tracking-tighter text-[10px]`}>{getKindString(file.type)}</span>
+                                <span>•</span>
+                                <span>{file.size}</span>
                               </div>
-                              <button className="options-btn"><MoreVertical size={16} /></button>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="animate-fade-in list-container">
-                        <div className="list-header">
-                          <div className="col-name">Name</div>
-                          <div className="col-owner mobile-hide">Owner</div>
-                          <div className="col-kind mobile-hide">Kind</div>
-                          <div className="col-date mobile-hide">Date Modified</div>
-                          <div className="col-size">Size</div>
-                          <div className="col-actions"></div>
+                      <div className="animate-fade-in bg-bg-secondary rounded-[26px] border border-border-color overflow-hidden shadow-soft mb-10 transition-all duration-500">
+                        <div className="grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 border-b border-border-color bg-bg-tertiary/20 text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.16em]">
+                          <div className="pl-1.5">Name</div>
+                          <div className="hidden lg:block">Owner</div>
+                          <div className="hidden lg:block">Kind</div>
+                          <div className="hidden lg:block">Modified</div>
+                          <div className="text-right pr-4">Size</div>
+                          <div></div>
                         </div>
-                        <div className="list-body">
+                        <div className="divide-y divide-border-color/20">
                           {displayedFolders.map(folder => (
                             <div
                               key={`folder-${folder.id}`}
-                              className={`list-row ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'selected' : ''}`}
-                              onClick={() => navigateToFolder(folder)}
+                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.04] shadow-[inset_4px_0_0_0_var(--color-file-folder)]' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigateToFolder(folder);
+                              }}
                             >
-                              <div className="col-name">
-                                <div className="row-icon folder">
-                                  <Folder size={20} fill="currentColor" />
+                              <div className="flex items-center gap-4 min-w-0">
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 bg-file-folder/10 text-file-folder shadow-sm">
+                                  {renderIcon('folder', 18)}
                                 </div>
-                                <span className="row-name">{folder.name}</span>
+                                <span className="text-[14px] font-bold text-text-primary truncate">{folder.name}</span>
                               </div>
-                              <div className="col-owner mobile-hide">
+                              <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
                                 {renderOwnerAvatar(folder.owner)}
-                                {folder.owner}
+                                <span className="truncate">{folder.owner === 'me' ? 'Only me' : folder.owner}</span>
                               </div>
-                              <div className="col-kind mobile-hide">Folder</div>
-                              <div className="col-date mobile-hide">{folder.date}</div>
-                              <div className="col-size">{folder.size}</div>
-                              <div className="col-actions">
-                                <button className="icon-btn-small"><MoreVertical size={16} /></button>
+                              <div className="hidden lg:block">
+                                <span className="text-[10px] font-extrabold text-file-folder bg-file-folder/10 px-2 py-0.5 rounded-md uppercase tracking-tight">Folder</span>
+                              </div>
+                              <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{folder.date}</div>
+                              <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{folder.size}</div>
+                              <div className="flex justify-end pr-1">
+                                <button className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all"><MoreVertical size={16} /></button>
                               </div>
                             </div>
                           ))}
                           {displayedFiles.map(file => (
                             <div
                               key={`file-${file.id}`}
-                              className={`list-row ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'selected' : ''}`}
-                              onClick={() => setSelectedItem(file)}
+                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.04] shadow-[inset_4px_0_0_0_var(--accent-primary)]' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedItem(file);
+                              }}
                             >
-                              <div className="col-name">
-                                <div className={`row-icon ${file.type}`}>
-                                  {renderIcon(file.type)}
+                              <div className="flex items-center gap-4 min-w-0">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all group-hover:scale-110 bg-file-${file.type}/10 text-file-${file.type} shadow-sm`}>
+                                  {renderIcon(file.type, 18)}
                                 </div>
-                                <span className="row-name">{file.name}</span>
+                                <span className="text-[14px] font-bold text-text-primary truncate">{file.name}</span>
                               </div>
-                              <div className="col-owner mobile-hide">
+                              <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
                                 {renderOwnerAvatar(file.owner)}
-                                {file.owner}
+                                <span className="truncate">{file.owner === 'me' ? 'Only me' : file.owner}</span>
                               </div>
-                              <div className="col-kind mobile-hide">{getKindString(file.type)}</div>
-                              <div className="col-date mobile-hide">{file.date}</div>
-                              <div className="col-size">{file.size}</div>
-                              <div className="col-actions">
-                                <button className="icon-btn-small"><MoreVertical size={16} /></button>
+                              <div className="hidden lg:block text-[10px] font-extrabold text-text-secondary opacity-60 uppercase tracking-tight">{getKindString(file.type)}</div>
+                              <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{file.date}</div>
+                              <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{file.size}</div>
+                              <div className="flex justify-end pr-1">
+                                <button className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all"><MoreVertical size={16} /></button>
                               </div>
                             </div>
                           ))}
@@ -437,107 +532,129 @@ export default function App() {
                 )}
               </>
             )}
-
           </section>
 
-          {selectedItem && (
-            <aside className="details-pane animate-fade-in">
-              <div className="details-header">
-                <h2 className="details-title">Details</h2>
-                <button className="icon-btn-small" onClick={() => setSelectedItem(null)}>
-                  <X size={18} />
-                </button>
-              </div>
+          <aside className="w-[340px] bg-bg-secondary border-l border-border-color flex flex-col overflow-y-auto z-5 hidden lg:flex shadow-[-10px_0_20px_-10px_rgba(0,0,0,0.02)]" onClick={(e) => e.stopPropagation()}>
+            {selectedItem ? (
+              <div className="animate-fade-in flex flex-col h-full">
+                <div className="p-8 pb-4 flex items-center justify-between sticky top-0 bg-bg-secondary/80 backdrop-blur-md z-10">
+                  <h2 className="text-[18px] font-extrabold text-text-primary tracking-tight">Information</h2>
+                  <button className="flex items-center justify-center p-2 rounded-xl text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-all active:scale-90" onClick={() => setSelectedItem(null)}>
+                    <X size={18} />
+                  </button>
+                </div>
 
-              <div className="details-preview">
-                {selectedItem.preview ? (
-                  <img src={selectedItem.preview} alt={selectedItem.name} className="details-img" />
-                ) : (
-                  <div className={`details-icon ${selectedItem.type}`}>
-                    {renderIcon(selectedItem.type)}
+                <div className="p-8 pt-2">
+                  <div className="aspect-square bg-bg-tertiary/50 rounded-[32px] mb-8 flex items-center justify-center overflow-hidden shadow-inner border border-border-color/50 group relative">
+                    {selectedItem.preview ? (
+                      <img src={selectedItem.preview} alt={selectedItem.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    ) : (
+                      <div className={`w-24 h-24 rounded-3xl flex items-center justify-center text-file-${selectedItem.type} transform transition-transform group-hover:scale-110 duration-500`}>
+                        {renderIcon(selectedItem.type, 96)}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </div>
-                )}
-              </div>
 
-              <div className="details-info">
-                <h3 className="details-name">{selectedItem.name}</h3>
-                <div className="details-type">{selectedItem.type === 'folder' ? 'Folder' : getKindString(selectedItem.type)}</div>
-              </div>
+                  <div className="mb-10 text-center">
+                    <h3 className="text-xl font-extrabold text-text-primary mb-1.5 break-words line-clamp-2 px-2" title={selectedItem.name}>{selectedItem.name}</h3>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-bg-tertiary rounded-full text-[11px] font-extrabold text-text-secondary uppercase tracking-widest border border-border-color/50">
+                      {selectedItem.type === 'folder' ? 'Folder' : getKindString(selectedItem.type)}
+                    </div>
+                  </div>
 
-              <div className="details-actions">
-                <button className="btn-secondary" style={{ flex: 1 }}>
-                  <Share2 size={16} style={{ marginRight: '6px' }} /> Share
-                </button>
-                <button className="btn-primary" style={{ flex: 1 }}>
-                  <Download size={16} /> Download
-                </button>
-              </div>
+                  <div className="flex gap-3 mb-10">
+                    <button className="flex-1 flex items-center justify-center gap-2.5 bg-bg-tertiary text-text-secondary p-3.5 rounded-2xl font-bold text-sm transition-all hover:bg-bg-primary hover:text-text-primary border border-border-color shadow-sm active:scale-95 group">
+                      <Share2 size={16} className="group-hover:rotate-12 transition-transform" /> Share
+                    </button>
+                    <button className="flex-1 flex items-center justify-center gap-2.5 bg-accent-gradient text-white p-3.5 rounded-2xl font-bold text-sm transition-all hover:translate-y-[-2px] hover:shadow-lg hover:shadow-accent-primary/20 active:translate-y-0 active:scale-95 shadow-md shadow-accent-primary/10 group">
+                      <Download size={16} className="group-hover:translate-y-0.5 transition-transform" /> Save
+                    </button>
+                  </div>
 
-              <div className="details-meta-list">
-                <div className="meta-item">
-                  <span className="meta-label">Size</span>
-                  <span className="meta-value">{selectedItem.size || '--'}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Date Modified</span>
-                  <span className="meta-value">{selectedItem.date || '--'}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Owner</span>
-                  <span className="meta-value" style={{ display: 'flex', alignItems: 'center' }}>
-                    {selectedItem.owner && renderOwnerAvatar(selectedItem.owner)}
-                    {selectedItem.owner || '--'}
-                  </span>
+                  <div className="space-y-6 pt-6 border-t border-border-color/50">
+                    <div className="flex items-center justify-between group">
+                      <span className="text-[11px] uppercase font-extrabold text-text-secondary tracking-[0.15em]">Size</span>
+                      <span className="text-[13px] text-text-primary font-bold bg-bg-tertiary/50 px-2.5 py-1 rounded-lg transition-colors group-hover:bg-bg-tertiary">{selectedItem.size || '--'}</span>
+                    </div>
+                    <div className="flex items-center justify-between group">
+                      <span className="text-[11px] uppercase font-extrabold text-text-secondary tracking-[0.15em]">Modified</span>
+                      <span className="text-[13px] text-text-primary font-bold bg-bg-tertiary/50 px-2.5 py-1 rounded-lg transition-colors group-hover:bg-bg-tertiary">{selectedItem.date || '--'}</span>
+                    </div>
+                    <div className="flex items-center justify-between group">
+                      <span className="text-[11px] uppercase font-extrabold text-text-secondary tracking-[0.15em]">Owner</span>
+                      <div className="flex items-center gap-2 bg-bg-tertiary/50 px-2 py-1 rounded-lg transition-colors group-hover:bg-bg-tertiary">
+                        {selectedItem.owner && renderOwnerAvatar(selectedItem.owner)}
+                        <span className="text-[13px] text-text-primary font-bold truncate max-w-[100px]">{selectedItem.owner === 'me' ? 'Only me' : selectedItem.owner}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </aside>
-          )}
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-fade-in opacity-60">
+                <div className="w-24 h-24 bg-bg-tertiary rounded-[32px] flex items-center justify-center text-text-secondary mb-6 border border-border-color/50">
+                  <FileIcon size={36} strokeWidth={1.5} />
+                </div>
+                <h3 className="text-lg font-bold text-text-primary mb-2">No selection</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  Select a file or folder to view its detailed information and actions.
+                </p>
+              </div>
+            )}
+          </aside>
         </div>
       </main>
 
       {/* Mobile Actions FAB */}
-      <button className="fab mobile-show">
+      <button className="fixed right-6 bottom-6 w-14 h-14 bg-accent-gradient text-white rounded-full flex items-center justify-center shadow-2xl z-20 cursor-pointer active:scale-95 transition-transform md:hidden shadow-accent-primary/30">
         <UploadCloud size={24} />
       </button>
 
       {/* Create Space Modal */}
       {isCreateSpaceModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsCreateSpaceModalOpen(false)}>
-          <div className="modal-content animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Create New Space</h2>
-              <button className="icon-btn" onClick={() => setIsCreateSpaceModalOpen(false)}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setIsCreateSpaceModalOpen(false)}>
+          <div className="bg-bg-secondary border border-border-color rounded-[32px] w-full max-w-md p-10 shadow-soft animate-scale-up" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-2xl font-extrabold text-text-primary tracking-tight">New Workspace</h2>
+                <p className="text-sm text-text-secondary font-medium">Set up a dedicated space for your files.</p>
+              </div>
+              <button className="flex items-center justify-center p-2.5 rounded-2xl border border-border-color bg-bg-tertiary text-text-secondary transition-all hover:bg-bg-primary hover:text-text-primary active:scale-90" onClick={() => setIsCreateSpaceModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Space Name</label>
-              <input
-                id="new-space-name"
-                type="text"
-                className="form-input"
-                placeholder="e.g. Finance Documents"
-                autoFocus
-              />
+            <div className="space-y-8">
+              <div className="group">
+                <label className="block text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.14em] mb-3 ml-1">Workspace Name</label>
+                <div className="relative">
+                  <input
+                    id="new-space-name"
+                    type="text"
+                    className="w-full bg-bg-tertiary/50 border border-border-color/80 rounded-2xl p-4 px-5 text-sm text-text-primary outline-none transition-all placeholder:text-text-secondary/40 font-bold focus:bg-bg-secondary focus:border-accent-primary focus:ring-4 focus:ring-accent-primary/10"
+                    placeholder="e.g. Design Projects"
+                    autoFocus
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.14em] mb-3 ml-1">Initial Quota</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {['10 GB', '50 GB', '100 GB', 'Unlimited'].map((option) => (
+                    <button key={option} className="p-3.5 rounded-2xl border border-border-color bg-bg-tertiary/30 text-xs font-bold text-text-secondary transition-all hover:bg-bg-secondary hover:border-accent-primary/30 hover:text-text-primary focus:bg-bg-secondary focus:border-accent-primary focus:text-accent-primary focus:ring-4 focus:ring-accent-primary/5">
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Storage Quota</label>
-              <select className="form-input">
-                <option>10 GB</option>
-                <option>50 GB</option>
-                <option>100 GB</option>
-                <option>Unlimited</option>
-              </select>
-            </div>
-
-            <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setIsCreateSpaceModalOpen(false)}>
-                Cancel
-              </button>
+            <div className="flex flex-col gap-3 mt-12">
               <button
-                className="btn-primary"
+                className="w-full flex items-center justify-center gap-3 bg-accent-gradient text-white p-4 rounded-2xl font-extrabold text-[15px] transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-accent-primary/25 active:translate-y-0 active:scale-[0.98] shadow-lg shadow-accent-primary/10 border border-white/10"
                 onClick={() => {
                   const inputEl = document.getElementById('new-space-name') as HTMLInputElement;
                   const newName = inputEl?.value || 'New Custom Space';
@@ -553,7 +670,11 @@ export default function App() {
                   setIsCreateSpaceModalOpen(false);
                 }}
               >
-                Create Space
+                Launch Workspace
+                <ChevronRight size={18} />
+              </button>
+              <button className="w-full p-4 rounded-2xl font-bold text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-all" onClick={() => setIsCreateSpaceModalOpen(false)}>
+                Think about it later
               </button>
             </div>
           </div>
