@@ -250,16 +250,22 @@ export default function App() {
           </button>
         </div>
 
-        <div className="relative mb-6" ref={spaceDropdownRef}>
+        <div className="relative mb-8" ref={spaceDropdownRef}>
+          <div className="text-[10px] font-extrabold text-text-secondary uppercase tracking-[0.2em] mb-2 px-1">Active Space</div>
           <button
-            className="flex items-center justify-between w-full p-3 px-4 bg-bg-tertiary border border-border-color rounded-xl cursor-pointer text-text-primary font-medium transition-colors hover:border-accent-primary"
+            className={`flex items-center justify-between w-full p-3 px-4 rounded-2xl cursor-pointer transition-all duration-300 group border ${isSpaceDropdownOpen ? 'bg-bg-secondary border-accent-primary shadow-lg ring-4 ring-accent-primary/10' : 'bg-bg-tertiary/50 border-border-color/60 hover:border-accent-primary hover:bg-bg-secondary hover:shadow-md'}`}
             onClick={() => setIsSpaceDropdownOpen(!isSpaceDropdownOpen)}
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-accent-primary"></div>
-              {activeSpace.name}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-accent-primary/10 text-accent-primary flex items-center justify-center transition-transform group-hover:scale-110">
+                <Database size={16} strokeWidth={2.5} />
+              </div>
+              <div className="flex flex-col items-start min-w-0">
+                <span className="text-[13px] font-bold text-text-primary truncate w-full">{activeSpace.name}</span>
+                <span className="text-[10px] font-bold text-text-secondary/70 uppercase tracking-tighter">Shared Workspace</span>
+              </div>
             </div>
-            <ChevronDown size={16} />
+            <ChevronDown size={16} className={`text-text-secondary transition-transform duration-300 ${isSpaceDropdownOpen ? 'rotate-180 text-accent-primary' : ''}`} />
           </button>
 
           <div className={`absolute top-full left-0 w-full mt-2 bg-bg-secondary border border-border-color rounded-xl shadow-lg z-50 overflow-hidden ${isSpaceDropdownOpen ? 'block animate-fade-in' : 'hidden'}`}>
@@ -475,23 +481,27 @@ export default function App() {
             }}
           >
             <div className="flex items-center justify-between mb-8 animate-fade-in transform-gpu" onClick={(e) => e.stopPropagation()}>
-              <div>
-                <div className="flex items-center gap-1.5 text-text-secondary text-[13px] font-bold mb-1 ml-0.5">
-                  {currentPath.map((item, index) => (
-                    <div key={item.id || 'root'} className="flex items-center">
-                      <span
-                        className={`cursor-pointer transition-all p-1 px-1.5 rounded-lg border border-transparent ${index === currentPath.length - 1 ? "text-text-primary font-extrabold bg-bg-secondary border-border-color px-2.5 shadow-sm" : "hover:text-text-primary hover:bg-bg-secondary hover:border-border-color"}`}
-                        onClick={() => navigateToBreadcrumb(index)}
-                      >
-                        {item.name}
-                      </span>
-                      {index < currentPath.length - 1 && (
-                        <ChevronRight size={14} className="mx-0.5 opacity-40" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <nav className="flex items-center gap-0.5 px-1 py-0.5 rounded-xl transition-all duration-300">
+                {currentPath.map((item, index) => (
+                  <div key={item.id || 'root'} className="flex items-center">
+                    <button
+                      className={`flex items-center gap-2.5 cursor-pointer transition-all duration-200 p-2 px-3 rounded-lg group ${index === currentPath.length - 1
+                          ? "text-text-primary font-bold"
+                          : "text-text-secondary hover:text-text-primary hover:bg-bg-tertiary/80"
+                        }`}
+                      onClick={() => navigateToBreadcrumb(index)}
+                    >
+                      <div className={`transition-colors duration-200 ${index === currentPath.length - 1 ? "text-accent-primary" : "text-text-secondary/60 group-hover:text-text-primary"}`}>
+                        {index === 0 ? <LayoutDashboard size={16} strokeWidth={2} /> : <Folder size={16} strokeWidth={2} />}
+                      </div>
+                      <span className="text-[14px] tracking-tight">{item.name}</span>
+                    </button>
+                    {index < currentPath.length - 1 && (
+                      <ChevronRight size={14} className="mx-0.5 text-text-secondary/30" strokeWidth={1.5} />
+                    )}
+                  </div>
+                ))}
+              </nav>
 
               <div className="flex bg-bg-tertiary/50 p-1.5 rounded-2xl border border-border-color shadow-sm">
                 <button
