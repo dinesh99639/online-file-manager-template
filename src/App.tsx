@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 
 import {
-  Folder, FileText, FileVideo, MoreVertical,
+  Folder, FileImage, FileText, FileVideo, MoreVertical,
   Search, Bell, Moon, Sun, UploadCloud, Download, Share2,
   Grid as GridIcon, List as ListIcon, LayoutDashboard, History as HistoryIcon, Star, Trash2,
   Menu, X, ChevronDown, ChevronRight, Plus, FolderOpen,
   FileArchive, FileSpreadsheet, File as FileIcon, GalleryVertical, Clapperboard, Package,
-  Palette, Droplets, Leaf, Sunset as SunsetIcon, Ghost, Check
+  Palette, Droplets, Leaf, Sunset as SunsetIcon, Ghost, Check,
+  CloudSync, Database, RefreshCw
 } from 'lucide-react';
 
 // Dummy data
@@ -49,9 +50,9 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [spaces, setSpaces] = useState([
-    { id: 1, name: 'Personal Storage', used: '15 GB', total: '20 GB', percentage: 75 },
-    { id: 2, name: 'Work Drive', used: '45 GB', total: '100 GB', percentage: 45 },
-    { id: 3, name: 'Project Phoenix', used: '2 GB', total: '10 GB', percentage: 20 }
+    { id: 1, name: 'Personal Storage', used: '15.4 GB', filesCount: 1250, bandwidth: '4.2 GB', status: 'Healthy' },
+    { id: 2, name: 'Work Drive', used: '45.2 GB', filesCount: 5400, bandwidth: '12.8 GB', status: 'Encrypted' },
+    { id: 3, name: 'Project Phoenix', used: '2.1 GB', filesCount: 320, bandwidth: '1.2 GB', status: 'Archived' }
   ]);
   const [activeSpaceId, setActiveSpaceId] = useState(1);
   const [isSpaceDropdownOpen, setIsSpaceDropdownOpen] = useState(false);
@@ -73,7 +74,7 @@ export default function App() {
     { id: 'nord', name: 'Nord', icon: <Ghost size={16} />, color: '#5e81ac' }
   ];
 
-  const activeSpace = spaces.find(s => s.id === activeSpaceId) || spaces[0];
+  const activeSpace: any = spaces.find(s => s.id === activeSpaceId) || spaces[0];
   const currentFolderId = currentPath[currentPath.length - 1].id;
   const displayedFolders = folders.filter(f => f.parentId === currentFolderId);
   const displayedFiles = files.filter(f => f.parentId === currentFolderId);
@@ -281,20 +282,55 @@ export default function App() {
         </nav>
 
         <div className="mt-auto px-1">
-          <div className="bg-bg-secondary/40 border border-border-color/50 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Storage</span>
-              <span className="text-xs font-extrabold text-text-primary">{activeSpace.percentage}%</span>
+          <div className="bg-bg-secondary/40 border border-border-color/50 rounded-2xl p-4 shadow-sm relative overflow-hidden group/storage">
+            {/* Subtle pulse background for 'Unlimited' feel */}
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-accent-primary/5 rounded-full blur-2xl group-hover/storage:bg-accent-primary/10 transition-colors"></div>
+
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-extrabold text-text-secondary uppercase tracking-[0.2em] mb-0.5">Storage Plan</span>
+                <span className="text-sm font-black text-accent-primary flex items-center gap-1.5">
+                  Unlimited
+                  <div className="w-1 h-1 rounded-full bg-accent-primary animate-pulse"></div>
+                </span>
+              </div>
+              <div className="w-9 h-9 bg-bg-tertiary/50 border border-border-color/50 rounded-xl flex items-center justify-center text-accent-primary">
+                <CloudSync size={18} strokeWidth={2.5} />
+              </div>
             </div>
-            <div className="h-1.5 bg-bg-primary rounded-full overflow-hidden shadow-inner">
-              <div
-                className="h-full bg-accent-gradient rounded-full shadow-[0_0_8px_rgba(99,102,241,0.4)]"
-                style={{ width: `${activeSpace.percentage}%`, transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
-              ></div>
+
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <Database size={12} className="opacity-50" />
+                  <span>Space Used</span>
+                </div>
+                <span className="text-text-primary font-black">{activeSpace.used}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <FileIcon size={12} className="opacity-50" />
+                  <span>File Count</span>
+                </div>
+                <span className="text-text-primary font-black">{activeSpace.filesCount.toLocaleString()}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <div className="flex items-center gap-2 text-text-secondary">
+                  <RefreshCw size={12} className="opacity-50" />
+                  <span>Transfer</span>
+                </div>
+                <span className="text-text-primary font-black">{activeSpace.bandwidth}/mo</span>
+              </div>
             </div>
-            <div className="text-[11px] text-text-secondary font-bold mt-2.5 flex justify-between">
-              <span>Used: {activeSpace.used}</span>
-              <span>Total: {activeSpace.total}</span>
+
+            <div className="mt-4 pt-3 border-t border-border-color/30 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <span className="text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">{activeSpace.status}</span>
+              </div>
+              <span className="text-[10px] font-extrabold text-text-secondary hover:text-accent-primary cursor-pointer transition-colors">Upgrade</span>
             </div>
           </div>
         </div>
