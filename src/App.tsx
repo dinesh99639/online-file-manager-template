@@ -6,7 +6,7 @@ import {
   Grid as GridIcon, List as ListIcon, LayoutDashboard, History as HistoryIcon, Star, Trash2,
   Menu, X, ChevronDown, ChevronRight, Plus, FolderOpen,
   FileArchive, FileSpreadsheet, File as FileIcon, GalleryVertical, Clapperboard, Package,
-  Palette, Droplets, Leaf, Sunset, Ghost
+  Palette, Droplets, Leaf, Sunset as SunsetIcon, Ghost, Check
 } from 'lucide-react';
 
 // Dummy data
@@ -59,6 +59,7 @@ export default function App() {
   const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [currentPath, setCurrentPath] = useState([{ id: null as number | null, name: 'My Files' }]);
+  const [currentSection, setCurrentSection] = useState('my-files');
   const spaceDropdownRef = useRef<HTMLDivElement>(null);
   const themePickerRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +69,7 @@ export default function App() {
     { id: 'midnight', name: 'Midnight', icon: <Droplets size={16} />, color: '#38bdf8' },
     { id: 'ocean', name: 'Ocean', icon: <Droplets size={16} />, color: '#0284c7' },
     { id: 'forest', name: 'Forest', icon: <Leaf size={16} />, color: '#059669' },
-    { id: 'sunset', name: 'Sunset', icon: <Sunset size={16} />, color: '#ea580c' },
+    { id: 'sunset', name: 'Sunset', icon: <SunsetIcon size={16} />, color: '#f97316' },
     { id: 'nord', name: 'Nord', icon: <Ghost size={16} />, color: '#5e81ac' }
   ];
 
@@ -151,16 +152,18 @@ export default function App() {
     return <div className="w-6 h-6 rounded-full bg-bg-tertiary text-text-secondary flex items-center justify-center text-[10px] mr-2 font-bold">{owner.charAt(0)}</div>;
   };
 
-  const handleRefreshSimulate = () => {
+  const handleRefreshSimulate = (section = 'recent') => {
     setSelectedItem(null);
     setIsLoading(true);
     setIsSidebarOpen(false);
+    setCurrentSection(section);
     setTimeout(() => setIsLoading(false), 200);
   };
 
   const navigateToFolder = (folder: any) => {
     setSelectedItem({ ...folder, type: 'folder' });
     setIsLoading(true);
+    setCurrentSection('my-files');
     setCurrentPath([...currentPath, { id: folder.id, name: folder.name }]);
     setTimeout(() => setIsLoading(false), 200);
   };
@@ -177,6 +180,7 @@ export default function App() {
 
   const navigateToBreadcrumb = (index: number) => {
     if (index === currentPath.length - 1) return;
+    setCurrentSection('my-files');
     const breadcrumb = currentPath[index];
     if (breadcrumb.id === null) {
       setSelectedItem(null);
@@ -252,23 +256,26 @@ export default function App() {
 
         <nav className="flex-1 space-y-1">
           <div
-            className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentFolderId === null ? 'text-text-primary font-bold bg-bg-primary shadow-sm shadow-accent-primary/5 ring-1 ring-border-color/50' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary'}`}
-            onClick={() => navigateToBreadcrumb(0)}
+            className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentSection === 'my-files' ? 'text-accent-primary font-bold bg-bg-secondary shadow-md ring-1 ring-accent-primary/20' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary'}`}
+            onClick={() => {
+              setCurrentSection('my-files');
+              navigateToBreadcrumb(0);
+            }}
           >
-            <LayoutDashboard size={18} className={currentFolderId === null ? "text-accent-primary" : ""} />
+            <LayoutDashboard size={18} />
             <span className="text-[14px]">My Files</span>
           </div>
-          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={handleRefreshSimulate}>
-            <HistoryIcon size={18} className="transition-transform group-hover:rotate-[-10deg]" />
-            <span className="text-[14px] font-semibold">Recent</span>
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={() => handleRefreshSimulate('recent')}>
+            <HistoryIcon size={18} className={`transition-transform group-hover:rotate-[-10deg] ${currentSection === 'recent' ? 'text-accent-primary' : ''}`} />
+            <span className={`text-[14px] font-semibold ${currentSection === 'recent' ? 'text-text-primary' : ''}`}>Recent</span>
           </div>
-          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group">
-            <Star size={18} className="transition-transform group-hover:scale-110" />
-            <span className="text-[14px] font-semibold">Starred</span>
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={() => handleRefreshSimulate('starred')}>
+            <Star size={18} className={`transition-transform group-hover:scale-110 ${currentSection === 'starred' ? 'text-accent-primary' : ''}`} />
+            <span className={`text-[14px] font-semibold ${currentSection === 'starred' ? 'text-text-primary' : ''}`}>Starred</span>
           </div>
-          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group">
-            <Trash2 size={18} />
-            <span className="text-[14px] font-semibold">Trash</span>
+          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={() => handleRefreshSimulate('trash')}>
+            <Trash2 size={18} className={currentSection === 'trash' ? 'text-accent-primary' : ''} />
+            <span className={`text-[14px] font-semibold ${currentSection === 'trash' ? 'text-text-primary' : ''}`}>Trash</span>
           </div>
           <div className="h-px bg-border-color/50 my-4 mx-2"></div>
         </nav>
@@ -449,12 +456,17 @@ export default function App() {
                         {displayedFolders.map(folder => (
                           <div
                             key={`folder-${folder.id}`}
-                            className={`group bg-bg-secondary rounded-[22px] border border-border-color p-3.5 transition-all duration-400 cursor-pointer hover:shadow-soft hover:border-file-folder/40 hover:-translate-y-1.5 transform-gpu ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'border-file-folder ring-4 ring-file-folder/5 shadow-lg' : 'hover:bg-bg-tertiary/20'}`}
+                            className={`group bg-bg-secondary rounded-[22px] border p-3.5 transition-all duration-400 cursor-pointer hover:shadow-soft hover:-translate-y-1.5 transform-gpu relative ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'border-file-folder ring-2 ring-file-folder/20 bg-file-folder/[0.03] shadow-lg shadow-file-folder/10' : 'border-border-color hover:border-file-folder/40 hover:bg-bg-tertiary/20'}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               navigateToFolder(folder);
                             }}
                           >
+                            {selectedItem?.id === folder.id && selectedItem?.type === 'folder' && (
+                              <div className="absolute -top-2 -right-2 w-6 h-6 bg-file-folder text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
+                                <Check size={14} strokeWidth={3} />
+                              </div>
+                            )}
                             <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
                               <div className="text-file-folder relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md">
                                 {renderIcon('folder', 56)}
@@ -477,12 +489,17 @@ export default function App() {
                         {displayedFiles.map(file => (
                           <div
                             key={`file-${file.id}`}
-                            className={`group bg-bg-secondary rounded-[22px] border border-border-color p-4 transition-all duration-400 cursor-pointer hover:shadow-soft hover:border-file-${file.type}/40 hover:-translate-y-1.5 transform-gpu ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'border-accent-primary ring-4 ring-accent-primary/5 shadow-lg' : 'hover:bg-bg-tertiary/20'}`}
+                            className={`group bg-bg-secondary rounded-[22px] border p-4 transition-all duration-400 cursor-pointer hover:shadow-soft hover:-translate-y-1.5 transform-gpu relative ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : 'border-border-color hover:border-file-${file.type}/40 hover:bg-bg-tertiary/20'}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedItem(file);
                             }}
                           >
+                            {selectedItem?.id === file.id && selectedItem?.type !== 'folder' && (
+                              <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent-primary text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
+                                <Check size={14} strokeWidth={3} />
+                              </div>
+                            )}
                             <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
                               {file.preview ? (
                                 <img src={file.preview} alt={file.name} className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-115" loading="lazy" />
@@ -521,7 +538,7 @@ export default function App() {
                           {displayedFolders.map(folder => (
                             <div
                               key={`folder-${folder.id}`}
-                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.04] shadow-[inset_4px_0_0_0_var(--color-file-folder)]' : ''}`}
+                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 relative ${selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.06] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/10' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigateToFolder(folder);
@@ -550,7 +567,7 @@ export default function App() {
                           {displayedFiles.map(file => (
                             <div
                               key={`file-${file.id}`}
-                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.04] shadow-[inset_4px_0_0_0_var(--accent-primary)]' : ''}`}
+                              className={`group grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.80fr_48px] gap-4 p-4 px-8 items-center cursor-pointer transition-all hover:bg-bg-tertiary/10 relative ${selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.06] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/10' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedItem(file);
