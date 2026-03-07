@@ -12,22 +12,22 @@ import {
 
 // Dummy data
 const files = [
-  { id: 1, parentId: null, name: 'Project Requirements.pdf', type: 'doc', size: '2.4 MB', date: 'Oct 24, 2023', owner: 'me' },
-  { id: 2, parentId: null, name: 'Website Mockups.png', type: 'image', size: '4.8 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop' },
-  { id: 3, parentId: null, name: 'Marketing Campaign.mp4', type: 'video', size: '124 MB', date: 'Oct 21, 2023', owner: 'me', preview: 'https://images.unsplash.com/photo-1516280440502-85f5e55e5b38?q=80&w=400&auto=format&fit=crop' },
-  { id: 4, parentId: null, name: 'Q3 Financial Report.xlsx', type: 'spreadsheet', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.' },
-  { id: 5, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me' },
-  { id: 6, parentId: 1, name: 'Logo Iterations.zip', type: 'archive', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me' },
-  { id: 7, parentId: 1, name: 'Color Palette.png', type: 'image', size: '1.1 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?q=80&w=400&auto=format&fit=crop' },
+  { id: 1, parentId: null, name: 'Project Requirements.pdf', type: 'doc', size: '2.4 MB', date: 'Oct 24, 2023', owner: 'me', isStarred: true, lastAccessed: '2023-10-24' },
+  { id: 2, parentId: null, name: 'Website Mockups.png', type: 'image', size: '4.8 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop', isStarred: false, lastAccessed: '2023-10-25' },
+  { id: 3, parentId: null, name: 'Marketing Campaign.mp4', type: 'video', size: '124 MB', date: 'Oct 21, 2023', owner: 'me', preview: 'https://images.unsplash.com/photo-1516280440502-85f5e55e5b38?q=80&w=400&auto=format&fit=crop', isStarred: true, lastAccessed: '2023-10-26' },
+  { id: 4, parentId: null, name: 'Q3 Financial Report.xlsx', type: 'spreadsheet', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.', isDeleted: true },
+  { id: 5, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 6, parentId: 1, name: 'Logo Iterations.zip', type: 'archive', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-25' },
+  { id: 7, parentId: 1, name: 'Color Palette.png', type: 'image', size: '1.1 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?q=80&w=400&auto=format&fit=crop', isStarred: true, lastAccessed: '2023-10-23' },
 ];
 
 const folders = [
-  { id: 1, parentId: null, name: 'Design Assets', items: 42, size: '2.4 GB', date: 'Oct 25, 2023', owner: 'me' },
-  { id: 2, parentId: null, name: 'Client Documents', items: 128, size: '8.1 GB', date: 'Oct 12, 2023', owner: 'me' },
-  { id: 3, parentId: null, name: 'Personal', items: 15, size: '450 MB', date: 'Sep 30, 2023', owner: 'me' },
-  { id: 4, parentId: null, name: 'Project Phoenix', items: 84, size: '1.2 GB', date: 'Aug 14, 2023', owner: 'Sarah J.' },
-  { id: 5, parentId: 1, name: 'Icons', items: 12, size: '5 MB', date: 'Oct 25, 2023', owner: 'me' },
-  { id: 6, parentId: 1, name: 'Fonts', items: 4, size: '20 MB', date: 'Oct 24, 2023', owner: 'me' }
+  { id: 1, parentId: null, name: 'Design Assets', items: 42, size: '2.4 GB', date: 'Oct 25, 2023', owner: 'me', isStarred: true, lastAccessed: '2023-10-25' },
+  { id: 2, parentId: null, name: 'Client Documents', items: 128, size: '8.1 GB', date: 'Oct 12, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-12' },
+  { id: 3, parentId: null, name: 'Personal', items: 15, size: '450 MB', date: 'Sep 30, 2023', owner: 'me', isStarred: false, isDeleted: true },
+  { id: 4, parentId: null, name: 'Project Phoenix', items: 84, size: '1.2 GB', date: 'Aug 14, 2023', owner: 'Sarah J.', isStarred: false },
+  { id: 5, parentId: 1, name: 'Icons', items: 12, size: '5 MB', date: 'Oct 25, 2023', owner: 'me', isStarred: false },
+  { id: 6, parentId: 1, name: 'Fonts', items: 4, size: '20 MB', date: 'Oct 24, 2023', owner: 'me', isStarred: false }
 ];
 
 const FILE_COLORS: Record<string, string> = {
@@ -76,8 +76,33 @@ export default function App() {
 
   const activeSpace: any = spaces.find(s => s.id === activeSpaceId) || spaces[0];
   const currentFolderId = currentPath[currentPath.length - 1].id;
-  const displayedFolders = folders.filter(f => f.parentId === currentFolderId);
-  const displayedFiles = files.filter(f => f.parentId === currentFolderId);
+
+  const getDisplayedItems = () => {
+    switch (currentSection) {
+      case 'recent':
+        return {
+          folders: [],
+          files: files.filter(f => !f.isDeleted && f.lastAccessed).sort((a, b) => new Date(b.lastAccessed!).getTime() - new Date(a.lastAccessed!).getTime())
+        };
+      case 'starred':
+        return {
+          folders: folders.filter(f => !f.isDeleted && f.isStarred),
+          files: files.filter(f => !f.isDeleted && f.isStarred)
+        };
+      case 'trash':
+        return {
+          folders: folders.filter(f => f.isDeleted),
+          files: files.filter(f => f.isDeleted)
+        };
+      default: // my-files
+        return {
+          folders: folders.filter(f => !f.isDeleted && f.parentId === currentFolderId),
+          files: files.filter(f => !f.isDeleted && f.parentId === currentFolderId)
+        };
+    }
+  };
+
+  const { folders: displayedFolders, files: displayedFiles } = getDisplayedItems();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -158,6 +183,12 @@ export default function App() {
     setIsLoading(true);
     setIsSidebarOpen(false);
     setCurrentSection(section);
+    // Reset path when switching sections to avoid confusion
+    if (section !== 'my-files') {
+      setCurrentPath([{ id: null, name: section.charAt(0).toUpperCase() + section.slice(1) }]);
+    } else {
+      setCurrentPath([{ id: null, name: 'My Files' }]);
+    }
     setTimeout(() => setIsLoading(false), 200);
   };
 
@@ -233,6 +264,12 @@ export default function App() {
                 onClick={() => {
                   setActiveSpaceId(space.id);
                   setIsSpaceDropdownOpen(false);
+
+                  // Reset view to 'My Files' root on space change
+                  setSelectedItem(null);
+                  setCurrentSection('my-files');
+                  setCurrentPath([{ id: null, name: 'My Files' }]);
+
                   setIsLoading(true);
                   setTimeout(() => setIsLoading(false), 800);
                 }}
@@ -258,25 +295,31 @@ export default function App() {
         <nav className="flex-1 space-y-1">
           <div
             className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentSection === 'my-files' ? 'text-accent-primary font-bold bg-bg-secondary shadow-md ring-1 ring-accent-primary/20' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary'}`}
-            onClick={() => {
-              setCurrentSection('my-files');
-              navigateToBreadcrumb(0);
-            }}
+            onClick={() => handleRefreshSimulate('my-files')}
           >
             <LayoutDashboard size={18} />
             <span className="text-[14px]">My Files</span>
           </div>
-          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={() => handleRefreshSimulate('recent')}>
-            <HistoryIcon size={18} className={`transition-transform group-hover:rotate-[-10deg] ${currentSection === 'recent' ? 'text-accent-primary' : ''}`} />
-            <span className={`text-[14px] font-semibold ${currentSection === 'recent' ? 'text-text-primary' : ''}`}>Recent</span>
+          <div
+            className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentSection === 'recent' ? 'text-accent-primary font-bold bg-bg-secondary shadow-md ring-1 ring-accent-primary/20' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary'}`}
+            onClick={() => handleRefreshSimulate('recent')}
+          >
+            <HistoryIcon size={18} />
+            <span className="text-[14px]">Recent</span>
           </div>
-          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={() => handleRefreshSimulate('starred')}>
-            <Star size={18} className={`transition-transform group-hover:scale-110 ${currentSection === 'starred' ? 'text-accent-primary' : ''}`} />
-            <span className={`text-[14px] font-semibold ${currentSection === 'starred' ? 'text-text-primary' : ''}`}>Starred</span>
+          <div
+            className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentSection === 'starred' ? 'text-accent-primary font-bold bg-bg-secondary shadow-md ring-1 ring-accent-primary/20' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary'}`}
+            onClick={() => handleRefreshSimulate('starred')}
+          >
+            <Star size={18} />
+            <span className="text-[14px]">Starred</span>
           </div>
-          <div className="flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group" onClick={() => handleRefreshSimulate('trash')}>
-            <Trash2 size={18} className={currentSection === 'trash' ? 'text-accent-primary' : ''} />
-            <span className={`text-[14px] font-semibold ${currentSection === 'trash' ? 'text-text-primary' : ''}`}>Trash</span>
+          <div
+            className={`flex items-center gap-3 p-2.5 px-4 rounded-xl cursor-pointer transition-all ${currentSection === 'trash' ? 'text-accent-primary font-bold bg-bg-secondary shadow-md ring-1 ring-accent-primary/20' : 'text-text-secondary hover:bg-bg-primary/50 hover:text-text-primary group'}`}
+            onClick={() => handleRefreshSimulate('trash')}
+          >
+            <Trash2 size={18} />
+            <span className="text-[14px]">Trash</span>
           </div>
           <div className="h-px bg-border-color/50 my-4 mx-2"></div>
         </nav>
