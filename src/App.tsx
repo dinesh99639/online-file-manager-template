@@ -61,6 +61,7 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [currentPath, setCurrentPath] = useState([{ id: null as number | null, name: 'My Files' }]);
   const [currentSection, setCurrentSection] = useState('my-files');
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, item: any, type: 'file' | 'folder' | 'background' } | null>(null);
   const spaceDropdownRef = useRef<HTMLDivElement>(null);
   const themePickerRef = useRef<HTMLDivElement>(null);
 
@@ -130,12 +131,27 @@ export default function App() {
       if (themePickerRef.current && !themePickerRef.current.contains(event.target as Node)) {
         setIsThemePickerOpen(false);
       }
+      setContextMenu(null);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // toggleTheme is currently handled via the themePicker
+
+  const handleContextMenu = (e: React.MouseEvent, item: any = null, type: 'file' | 'folder' | 'background' = 'background') => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (type === 'background') {
+      deselectToFolder();
+    }
+
+    const x = Math.min(e.clientX, window.innerWidth - 260);
+    const y = Math.min(e.clientY, window.innerHeight - 320);
+
+    setContextMenu({ x, y, item, type });
+  };
 
   const renderIcon = (type: string, size = 20) => {
     const color = FILE_COLORS[type] || FILE_COLORS.default;
@@ -415,13 +431,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 md:gap-3 ml-4">
-            <button className="hidden sm:flex items-center gap-2.5 bg-accent-gradient text-white p-2.5 px-6 rounded-2xl font-bold text-sm shadow-lg shadow-accent-primary/25 hover:translate-y-[-1px] hover:shadow-xl active:translate-y-0 active:scale-95 group transform-gpu transition-all">
-              <UploadCloud size={18} className="transition-transform group-hover:rotate-12" />
-              Upload
-            </button>
-
-            <div className="h-8 w-px bg-border-color mx-2 hidden md:block"></div>
-
             <div className="relative" ref={themePickerRef}>
               <button
                 className="flex items-center justify-center p-2.5 rounded-xl border border-transparent hover:border-border-color hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-90"
@@ -479,6 +488,7 @@ export default function App() {
               e.stopPropagation();
               deselectToFolder();
             }}
+            onContextMenu={(e) => handleContextMenu(e)}
           >
             <div className="flex items-center justify-between mb-8 animate-fade-in transform-gpu" onClick={(e) => e.stopPropagation()}>
               <nav className="flex items-center gap-0.5 px-1 py-0.5 rounded-xl transition-all duration-300">
@@ -503,22 +513,31 @@ export default function App() {
                 ))}
               </nav>
 
-              <div className="flex bg-bg-tertiary/50 p-1.5 rounded-2xl border border-border-color shadow-sm">
+              <div className="flex items-center gap-3">
                 <button
-                  className={`p-2 px-3 rounded-xl transition-all flex items-center gap-2 font-bold text-xs ${viewMode === 'grid' ? 'bg-bg-secondary text-accent-primary shadow-sm border border-border-color ring-1 ring-accent-primary/5' : 'text-text-secondary hover:text-text-primary'}`}
-                  onClick={() => setViewMode('grid')}
+                  className="flex items-center gap-2 bg-accent-gradient text-white p-2.5 px-6 rounded-xl font-bold text-sm shadow-lg shadow-accent-primary/25 hover:translate-y-[-1px] hover:shadow-xl active:translate-y-0 active:scale-95 transition-all"
+                  onClick={(e) => handleContextMenu(e)}
                 >
-                  <GridIcon size={16} strokeWidth={2.5} />
-                  Grid
+                  Actions
                 </button>
-                <div className="w-px h-4 bg-border-color mx-1 self-center"></div>
-                <button
-                  className={`p-2 px-3 rounded-xl transition-all flex items-center gap-2 font-bold text-xs ${viewMode === 'list' ? 'bg-bg-secondary text-accent-primary shadow-sm border border-border-color ring-1 ring-accent-primary/5' : 'text-text-secondary hover:text-text-primary'}`}
-                  onClick={() => setViewMode('list')}
-                >
-                  <ListIcon size={16} strokeWidth={2.5} />
-                  List
-                </button>
+
+                <div className="flex bg-bg-tertiary/50 p-1.5 rounded-2xl border border-border-color shadow-sm">
+                  <button
+                    className={`p-2 px-3 rounded-xl transition-all flex items-center gap-2 font-bold text-xs ${viewMode === 'grid' ? 'bg-bg-secondary text-accent-primary shadow-sm border border-border-color ring-1 ring-accent-primary/5' : 'text-text-secondary hover:text-text-primary'}`}
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <GridIcon size={16} strokeWidth={2.5} />
+                    Grid
+                  </button>
+                  <div className="w-px h-4 bg-border-color mx-1 self-center"></div>
+                  <button
+                    className={`p-2 px-3 rounded-xl transition-all flex items-center gap-2 font-bold text-xs ${viewMode === 'list' ? 'bg-bg-secondary text-accent-primary shadow-sm border border-border-color ring-1 ring-accent-primary/5' : 'text-text-secondary hover:text-text-primary'}`}
+                    onClick={() => setViewMode('list')}
+                  >
+                    <ListIcon size={16} strokeWidth={2.5} />
+                    List
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -556,6 +575,7 @@ export default function App() {
                               e.stopPropagation();
                               navigateToFolder(folder);
                             }}
+                            onContextMenu={(e) => handleContextMenu(e, folder, 'folder')}
                           >
                             {selectedItem?.id === folder.id && selectedItem?.type === 'folder' && (
                               <div className="absolute -top-2 -right-2 w-6 h-6 bg-file-folder text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
@@ -571,7 +591,15 @@ export default function App() {
                             <div className="flex flex-col gap-1.5 px-1.5">
                               <div className="flex items-center justify-between">
                                 <span className="text-[14px] font-extrabold text-text-primary truncate" title={folder.name}>{folder.name}</span>
-                                <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all"><MoreVertical size={14} /></button>
+                                <button
+                                  className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleContextMenu(e, folder, 'folder');
+                                  }}
+                                >
+                                  <MoreVertical size={14} />
+                                </button>
                               </div>
                               <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
                                 <span className="bg-file-folder/10 text-file-folder px-2 py-0.5 rounded-md">{folder.items} items</span>
@@ -589,6 +617,7 @@ export default function App() {
                               e.stopPropagation();
                               setSelectedItem(file);
                             }}
+                            onContextMenu={(e) => handleContextMenu(e, file, 'file')}
                           >
                             {selectedItem?.id === file.id && selectedItem?.type !== 'folder' && (
                               <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent-primary text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
@@ -608,7 +637,15 @@ export default function App() {
                             <div className="flex flex-col gap-1.5 px-1.5">
                               <div className="flex items-center justify-between">
                                 <span className="text-[14px] font-extrabold text-text-primary truncate" title={file.name}>{file.name}</span>
-                                <button className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all"><MoreVertical size={14} /></button>
+                                <button
+                                  className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleContextMenu(e, file, 'file');
+                                  }}
+                                >
+                                  <MoreVertical size={14} />
+                                </button>
                               </div>
                               <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
                                 <span className={`text-file-${file.type} opacity-80 uppercase tracking-tighter text-[10px]`}>{getKindString(file.type)}</span>
@@ -638,6 +675,7 @@ export default function App() {
                                 e.stopPropagation();
                                 navigateToFolder(folder);
                               }}
+                              onContextMenu={(e) => handleContextMenu(e, folder, 'folder')}
                             >
                               <div className="flex items-center gap-4 min-w-0">
                                 <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-file-folder/10 text-file-folder shadow-sm transition-all">
@@ -655,7 +693,15 @@ export default function App() {
                               <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{folder.date}</div>
                               <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{folder.size}</div>
                               <div className="flex justify-end pr-1">
-                                <button className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all"><MoreVertical size={16} /></button>
+                                <button
+                                  className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleContextMenu(e, folder, 'folder');
+                                  }}
+                                >
+                                  <MoreVertical size={16} />
+                                </button>
                               </div>
                             </div>
                           ))}
@@ -667,6 +713,7 @@ export default function App() {
                                 e.stopPropagation();
                                 setSelectedItem(file);
                               }}
+                              onContextMenu={(e) => handleContextMenu(e, file, 'file')}
                             >
                               <div className="flex items-center gap-4 min-w-0">
                                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-file-${file.type}/10 text-file-${file.type} shadow-sm transition-all`}>
@@ -684,7 +731,15 @@ export default function App() {
                               <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{file.date}</div>
                               <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{file.size}</div>
                               <div className="flex justify-end pr-1">
-                                <button className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all"><MoreVertical size={16} /></button>
+                                <button
+                                  className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleContextMenu(e, file, 'file');
+                                  }}
+                                >
+                                  <MoreVertical size={16} />
+                                </button>
                               </div>
                             </div>
                           ))}
@@ -766,84 +821,137 @@ export default function App() {
               </div>
             )}
           </aside>
-        </div>
-      </main>
+        </div >
+      </main >
 
       {/* Mobile Actions FAB */}
-      <button className="fixed right-6 bottom-6 w-14 h-14 bg-accent-gradient text-white rounded-full flex items-center justify-center shadow-2xl z-20 cursor-pointer active:scale-95 transition-transform md:hidden shadow-accent-primary/30">
+      < button className="fixed right-6 bottom-6 w-14 h-14 bg-accent-gradient text-white rounded-full flex items-center justify-center shadow-2xl z-20 cursor-pointer active:scale-95 transition-transform md:hidden shadow-accent-primary/30" >
         <UploadCloud size={24} />
-      </button>
+      </button >
 
       {/* Create Space Modal */}
-      {isCreateSpaceModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setIsCreateSpaceModalOpen(false)}>
-          <div className="bg-bg-secondary border border-border-color rounded-[32px] w-full max-w-md p-10 shadow-soft animate-scale-up" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-10">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-2xl font-extrabold text-text-primary tracking-tight">New Workspace</h2>
-                <p className="text-sm text-text-secondary font-medium">Set up a dedicated space for your files.</p>
+      {
+        isCreateSpaceModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={() => setIsCreateSpaceModalOpen(false)}>
+            <div className="bg-bg-secondary border border-border-color rounded-[32px] w-full max-w-md p-10 shadow-soft animate-scale-up" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-2xl font-extrabold text-text-primary tracking-tight">New Workspace</h2>
+                  <p className="text-sm text-text-secondary font-medium">Set up a dedicated space for your files.</p>
+                </div>
+                <button className="flex items-center justify-center p-2.5 rounded-2xl border border-border-color bg-bg-tertiary text-text-secondary transition-all hover:bg-bg-primary hover:text-text-primary active:scale-90" onClick={() => setIsCreateSpaceModalOpen(false)}>
+                  <X size={20} />
+                </button>
               </div>
-              <button className="flex items-center justify-center p-2.5 rounded-2xl border border-border-color bg-bg-tertiary text-text-secondary transition-all hover:bg-bg-primary hover:text-text-primary active:scale-90" onClick={() => setIsCreateSpaceModalOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
 
-            <div className="space-y-8">
-              <div className="group">
-                <label className="block text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.14em] mb-3 ml-1">Workspace Name</label>
-                <div className="relative">
-                  <input
-                    id="new-space-name"
-                    type="text"
-                    className="w-full bg-bg-tertiary/50 border border-border-color/80 rounded-2xl p-4 px-5 text-sm text-text-primary outline-none transition-all placeholder:text-text-secondary/40 font-bold focus:bg-bg-secondary focus:border-accent-primary focus:ring-4 focus:ring-accent-primary/10"
-                    placeholder="e.g. Design Projects"
-                    autoFocus
-                  />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+              <div className="space-y-8">
+                <div className="group">
+                  <label className="block text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.14em] mb-3 ml-1">Workspace Name</label>
+                  <div className="relative">
+                    <input
+                      id="new-space-name"
+                      type="text"
+                      className="w-full bg-bg-tertiary/50 border border-border-color/80 rounded-2xl p-4 px-5 text-sm text-text-primary outline-none transition-all placeholder:text-text-secondary/40 font-bold focus:bg-bg-secondary focus:border-accent-primary focus:ring-4 focus:ring-accent-primary/10"
+                      placeholder="e.g. Design Projects"
+                      autoFocus
+                    />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent-primary opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.14em] mb-3 ml-1">Initial Quota</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {['10 GB', '50 GB', '100 GB', 'Unlimited'].map((option) => (
+                      <button key={option} className="p-3.5 rounded-2xl border border-border-color bg-bg-tertiary/30 text-xs font-bold text-text-secondary transition-all hover:bg-bg-secondary hover:border-accent-primary/30 hover:text-text-primary focus:bg-bg-secondary focus:border-accent-primary focus:text-accent-primary focus:ring-4 focus:ring-accent-primary/5">
+                        {option}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.14em] mb-3 ml-1">Initial Quota</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {['10 GB', '50 GB', '100 GB', 'Unlimited'].map((option) => (
-                    <button key={option} className="p-3.5 rounded-2xl border border-border-color bg-bg-tertiary/30 text-xs font-bold text-text-secondary transition-all hover:bg-bg-secondary hover:border-accent-primary/30 hover:text-text-primary focus:bg-bg-secondary focus:border-accent-primary focus:text-accent-primary focus:ring-4 focus:ring-accent-primary/5">
-                      {option}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex flex-col gap-3 mt-12">
+                <button
+                  className="w-full flex items-center justify-center gap-3 bg-accent-gradient text-white p-4 rounded-2xl font-extrabold text-[15px] transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-accent-primary/25 active:translate-y-0 active:scale-[0.98] shadow-lg shadow-accent-primary/10 border border-white/10"
+                  onClick={() => {
+                    const inputEl = document.getElementById('new-space-name') as HTMLInputElement;
+                    const newName = inputEl?.value || 'New Custom Space';
+                    const newSpace = {
+                      id: spaces.length + 1,
+                      name: newName,
+                      used: '0 GB',
+                      filesCount: 0,
+                      bandwidth: '0 GB',
+                      status: 'Newly Created'
+                    };
+                    setSpaces([...spaces, newSpace]);
+                    setActiveSpaceId(newSpace.id);
+                    setIsCreateSpaceModalOpen(false);
+                  }}
+                >
+                  Launch Workspace
+                  <ChevronRight size={18} />
+                </button>
+                <button className="w-full p-4 rounded-2xl font-bold text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-all" onClick={() => setIsCreateSpaceModalOpen(false)}>
+                  Think about it later
+                </button>
               </div>
-            </div>
-
-            <div className="flex flex-col gap-3 mt-12">
-              <button
-                className="w-full flex items-center justify-center gap-3 bg-accent-gradient text-white p-4 rounded-2xl font-extrabold text-[15px] transition-all hover:translate-y-[-2px] hover:shadow-xl hover:shadow-accent-primary/25 active:translate-y-0 active:scale-[0.98] shadow-lg shadow-accent-primary/10 border border-white/10"
-                onClick={() => {
-                  const inputEl = document.getElementById('new-space-name') as HTMLInputElement;
-                  const newName = inputEl?.value || 'New Custom Space';
-                  const newSpace = {
-                    id: spaces.length + 1,
-                    name: newName,
-                    used: '0 GB',
-                    total: '50 GB',
-                    percentage: 0
-                  };
-                  setSpaces([...spaces, newSpace]);
-                  setActiveSpaceId(newSpace.id);
-                  setIsCreateSpaceModalOpen(false);
-                }}
-              >
-                Launch Workspace
-                <ChevronRight size={18} />
-              </button>
-              <button className="w-full p-4 rounded-2xl font-bold text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-all" onClick={() => setIsCreateSpaceModalOpen(false)}>
-                Think about it later
-              </button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-    </div>
+      {/* Context Menu Overlay */}
+      {
+        contextMenu && (
+          <div
+            className="fixed bg-bg-secondary/90 backdrop-blur-xl border border-border-color rounded-2xl shadow-2xl z-[200] w-60 p-1.5 animate-scale-up py-2.5 overflow-hidden ring-1 ring-black/[0.1]"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="px-3 pb-2 mb-1.5 border-b border-border-color/50">
+              <p className="text-[9px] font-extrabold text-text-secondary uppercase tracking-[0.18em] mb-0.5">
+                {contextMenu.type === 'background' ? 'Workspace' : contextMenu.type}
+              </p>
+              <p className="text-[13px] font-bold text-text-primary truncate">{contextMenu.item?.name || 'My Files'}</p>
+            </div>
+
+            <div className="space-y-0.5">
+              {contextMenu.type !== 'background' ? (
+                <>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Download size={16} className="text-emerald-500" /> Download
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Share2 size={16} className="text-blue-500" /> Share Link
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Star size={16} className="text-amber-500" /> {contextMenu.item?.isStarred ? 'Unstar' : 'Add to Starred'}
+                  </button>
+                  <div className="h-px bg-border-color/50 my-1.5 mx-1"></div>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Trash2 size={16} /> Delete
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Plus size={16} className="text-accent-primary" /> New Folder
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <UploadCloud size={16} className="text-accent-primary" /> Upload Files
+                  </button>
+                  <div className="h-px bg-border-color/50 my-1.5 mx-1"></div>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <RefreshCw size={16} className="text-blue-500/70" /> Refresh View
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      }
+    </div >
   );
 }
