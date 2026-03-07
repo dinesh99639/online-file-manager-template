@@ -7,7 +7,7 @@ import {
   Menu, X, ChevronDown, ChevronRight, Plus, FolderOpen,
   FileArchive, FileSpreadsheet, File as FileIcon, GalleryVertical, Clapperboard, Package,
   Palette, Droplets, Leaf, Sunset as SunsetIcon, Ghost, Check,
-  CloudSync, Database, RefreshCw
+  CloudSync, Database, RefreshCw, Copy, Move, Edit2
 } from 'lucide-react';
 
 // Dummy data
@@ -139,16 +139,25 @@ export default function App() {
 
   // toggleTheme is currently handled via the themePicker
 
-  const handleContextMenu = (e: React.MouseEvent, item: any = null, type: 'file' | 'folder' | 'background' = 'background') => {
+  const handleContextMenu = (e: React.MouseEvent, item: any = null, type: 'file' | 'folder' | 'background' = 'background', alignToElement: boolean = false) => {
     e.preventDefault();
     e.stopPropagation();
+
+    let x = e.clientX;
+    let y = e.clientY;
+
+    if (alignToElement) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      x = rect.left;
+      y = rect.bottom + 8;
+    }
 
     if (type === 'background') {
       deselectToFolder();
     }
 
-    const x = Math.min(e.clientX, window.innerWidth - 260);
-    const y = Math.min(e.clientY, window.innerHeight - 320);
+    x = Math.min(x, window.innerWidth - 260);
+    y = Math.min(y, window.innerHeight - 320);
 
     setContextMenu({ x, y, item, type });
   };
@@ -516,7 +525,7 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <button
                   className="flex items-center gap-2 bg-accent-gradient text-white p-2.5 px-6 rounded-xl font-bold text-sm shadow-lg shadow-accent-primary/25 hover:translate-y-[-1px] hover:shadow-xl active:translate-y-0 active:scale-95 transition-all"
-                  onClick={(e) => handleContextMenu(e)}
+                  onClick={(e) => handleContextMenu(e, null, 'background', true)}
                 >
                   Actions
                 </button>
@@ -595,7 +604,7 @@ export default function App() {
                                   className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleContextMenu(e, folder, 'folder');
+                                    handleContextMenu(e, folder, 'folder', true);
                                   }}
                                 >
                                   <MoreVertical size={14} />
@@ -641,7 +650,7 @@ export default function App() {
                                   className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleContextMenu(e, file, 'file');
+                                    handleContextMenu(e, file, 'file', true);
                                   }}
                                 >
                                   <MoreVertical size={14} />
@@ -697,7 +706,7 @@ export default function App() {
                                   className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleContextMenu(e, folder, 'folder');
+                                    handleContextMenu(e, folder, 'folder', true);
                                   }}
                                 >
                                   <MoreVertical size={16} />
@@ -735,7 +744,7 @@ export default function App() {
                                   className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleContextMenu(e, file, 'file');
+                                    handleContextMenu(e, file, 'file', true);
                                   }}
                                 >
                                   <MoreVertical size={16} />
@@ -925,6 +934,16 @@ export default function App() {
                   </button>
                   <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
                     <Share2 size={16} className="text-blue-500" /> Share Link
+                  </button>
+                  <div className="h-px bg-border-color/50 my-1.5 mx-1"></div>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Copy size={16} className="text-purple-500/80" /> Copy Item
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Move size={16} className="text-orange-500/80" /> Move Item
+                  </button>
+                  <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
+                    <Edit2 size={16} className="text-indigo-500/80" /> Rename
                   </button>
                   <button className="w-full flex items-center gap-3 p-2 px-3 rounded-xl text-sm font-bold text-text-primary hover:bg-bg-tertiary transition-all text-left" onClick={() => setContextMenu(null)}>
                     <Star size={16} className="text-amber-500" /> {contextMenu.item?.isStarred ? 'Unstar' : 'Add to Starred'}
