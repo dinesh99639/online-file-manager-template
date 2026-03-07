@@ -23,7 +23,9 @@ const folders = [
 ];
 
 export default function App() {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('appTheme') || 'light';
+  });
   const [viewMode, setViewMode] = useState(() => {
     return localStorage.getItem('viewMode') || 'grid';
   });
@@ -43,6 +45,7 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('appTheme', theme);
   }, [theme]);
 
   useEffect(() => {
