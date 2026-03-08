@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, ChevronRight } from 'lucide-react';
-import type { Space } from '../types';
+import type { Space } from '../../types';
 
 interface CreateSpaceModalProps {
   isOpen: boolean;

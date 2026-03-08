@@ -1,7 +1,7 @@
 import {
   UploadCloud, X, Database, ChevronDown, Plus, LayoutDashboard, History as HistoryIcon, Star, Trash2, CloudSync, File as FileIcon, RefreshCw
 } from 'lucide-react';
-import type { Space } from '../types';
+import type { Space } from '../../types';
 
 interface SidebarProps {
   isSidebarOpen: boolean;

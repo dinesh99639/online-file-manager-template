@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Share2, Download } from 'lucide-react';
-import { renderIcon, getKindString, renderOwnerAvatar } from '../utils';
+import { renderIcon, getKindString, renderOwnerAvatar } from '../../utils';
 
 interface FileDetailsPanelProps {
   selectedItem: any;

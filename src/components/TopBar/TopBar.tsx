@@ -1,5 +1,5 @@
 import { Menu, Search, Palette, Bell } from 'lucide-react';
-import type { Theme } from '../types';
+import type { Theme } from '../../types';
 
 interface TopBarProps {
   setIsSidebarOpen: (open: boolean) => void;

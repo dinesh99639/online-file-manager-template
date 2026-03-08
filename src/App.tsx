@@ -7,15 +7,15 @@ import { files as initialFiles, folders as initialFolders } from './constants';
 import { themes } from './themes';
 
 // Components
-import Sidebar from './components/Sidebar';
-import TopBar from './components/TopBar';
-import Breadcrumbs from './components/Breadcrumbs';
-import FileGrid from './components/FileGrid';
-import FileList from './components/FileList';
-import BulkActionBar from './components/BulkActionBar';
-import FileDetailsPanel from './components/FileDetailsPanel';
-import ContextMenu from './components/ContextMenu';
-import CreateSpaceModal from './components/CreateSpaceModal';
+import Sidebar from './components/Sidebar/Sidebar';
+import TopBar from './components/TopBar/TopBar';
+import Breadcrumbs from './components/Breadcrumbs/Breadcrumbs';
+import FileGrid from './components/FileGrid/FileGrid';
+import FileList from './components/FileList/FileList';
+import BulkActionBar from './components/BulkActionBar/BulkActionBar';
+import FileDetailsPanel from './components/FileDetailsPanel/FileDetailsPanel';
+import ContextMenu from './components/ContextMenu/ContextMenu';
+import CreateSpaceModal from './components/CreateSpaceModal/CreateSpaceModal';
 
 export default function App() {
   // Theme & View State

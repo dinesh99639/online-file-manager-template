@@ -1,7 +1,7 @@
 import React from 'react';
 import { Check, MoreVertical } from 'lucide-react';
-import type { FileItem, FolderItem } from '../types';
-import { renderIcon } from '../utils';
+import type { FileItem, FolderItem } from '../../types';
+import { renderIcon } from '../../utils';
 
 interface FileGridProps {
   displayedFolders: FolderItem[];
