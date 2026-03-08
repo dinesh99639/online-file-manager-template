@@ -17,8 +17,15 @@ const files = [
   { id: 3, parentId: null, name: 'Marketing Campaign.mp4', type: 'video', size: '124 MB', date: 'Oct 21, 2023', owner: 'me', preview: 'https://images.unsplash.com/photo-1516280440502-85f5e55e5b38?q=80&w=400&auto=format&fit=crop', isStarred: true, lastAccessed: '2023-10-26' },
   { id: 4, parentId: null, name: 'Q3 Financial Report.xlsx', type: 'spreadsheet', size: '1.2 MB', date: 'Oct 20, 2023', owner: 'Alex M.', isDeleted: true },
   { id: 5, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
-  { id: 6, parentId: 1, name: 'Logo Iterations.zip', type: 'archive', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-25' },
-  { id: 7, parentId: 1, name: 'Color Palette.png', type: 'image', size: '1.1 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?q=80&w=400&auto=format&fit=crop', isStarred: true, lastAccessed: '2023-10-23' },
+  { id: 6, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 7, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 8, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 9, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 10, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 11, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 12, parentId: null, name: 'Brand Guidelines.pdf', type: 'doc', size: '5.1 MB', date: 'Oct 19, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-19' },
+  { id: 13, parentId: 1, name: 'Logo Iterations.zip', type: 'archive', size: '15.2 MB', date: 'Oct 25, 2023', owner: 'me', isStarred: false, lastAccessed: '2023-10-25' },
+  { id: 14, parentId: 1, name: 'Color Palette.png', type: 'image', size: '1.1 MB', date: 'Oct 23, 2023', owner: 'Sarah J.', preview: 'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?q=80&w=400&auto=format&fit=crop', isStarred: true, lastAccessed: '2023-10-23' },
 ];
 
 const folders = [
@@ -295,7 +302,7 @@ export default function App() {
             <div className="w-9 h-9 bg-accent-gradient rounded-xl flex items-center justify-center text-white shadow-lg shadow-accent-primary/20 transform-gpu hover:scale-105 active:scale-95">
               <UploadCloud size={20} strokeWidth={2.5} />
             </div>
-            <span className="text-xl font-extrabold tracking-tight">TeleFiles</span>
+            <span className="text-xl font-extrabold tracking-tight">Files</span>
           </div>
           <button className="flex items-center justify-center p-2 rounded-xl border border-border-color bg-bg-secondary text-text-secondary transition-all hover:bg-bg-primary hover:text-text-primary md:hidden" onClick={() => setIsSidebarOpen(false)}>
             <X size={18} />
@@ -519,11 +526,11 @@ export default function App() {
         <div className="flex-1 flex overflow-hidden">
           {/* Content Area */}
           <section
-            className="flex-1 p-0 overflow-y-auto min-w-0 flex flex-col relative custom-scrollbar"
+            className="flex-1 p-0 overflow-hidden min-w-0 flex flex-col relative"
             onContextMenu={(e) => handleContextMenu(e)}
           >
             <div
-              className="flex-1 p-6 md:p-8 flex flex-col min-w-0"
+              className="flex-1 p-6 md:p-8 flex flex-col min-w-0 min-h-0 h-full overflow-hidden"
               onClick={(e) => {
                 e.stopPropagation();
                 deselectToFolder();
@@ -584,200 +591,37 @@ export default function App() {
                 </div>
               </div>
 
-              {isLoading ? (
-                <div className="flex items-center justify-center h-[200px] animate-fade-in">
-                  <div className="w-6 h-6 border-[3px] border-border-color border-t-accent-primary rounded-full animate-spin"></div>
-                </div>
-              ) : (
-                <>
-                  {displayedFolders.length === 0 && displayedFiles.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center text-center p-20 bg-bg-secondary border-2 border-dashed border-border-color rounded-[20px] mt-5 animate-fade-in shadow-sm">
-                      <div className="w-20 h-20 bg-bg-tertiary rounded-[24px] flex items-center justify-center text-text-secondary mb-6 opacity-80 mix-blend-luminosity shadow-sm">
-                        <Folder size={40} />
-                      </div>
-                      <h3 className="text-xl font-bold text-text-primary mb-2">This folder is empty</h3>
-                      <p className="text-sm text-text-secondary max-w-xs mx-auto mb-6 leading-relaxed">
-                        Drag and drop files here to upload, or use the button below to get started.
-                      </p>
-                      <div className="flex gap-3 justify-center">
-                        <button className="flex items-center gap-2 bg-accent-gradient text-white p-2.5 px-6 rounded-xl font-semibold cursor-pointer transition-all hover:translate-y-[-0.5px] hover:shadow-lg active:translate-y-0 active:scale-95 shadow-md">
-                          <Plus size={18} />
-                          Upload Files
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      {viewMode === 'grid' ? (
-                        <div className="animate-fade-in grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-7 pb-10">
-                          {displayedFolders.map(folder => (
-                            <div
-                              key={`folder-${folder.id}`}
-                              className={`group bg-bg-secondary rounded-[22px] border p-3.5 transition-all duration-400 cursor-pointer hover:shadow-soft hover:-translate-y-1.5 transform-gpu relative ${isSelectionMode && selectedIds.has(`folder-${folder.id}`) ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'border-file-folder ring-2 ring-file-folder/20 bg-file-folder/[0.03] shadow-lg shadow-file-folder/10' : 'border-border-color hover:border-file-folder/40 hover:bg-bg-tertiary/20'}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (isSelectionMode) {
-                                  toggleItemSelection(`folder-${folder.id}`);
-                                } else {
-                                  navigateToFolder(folder);
-                                }
-                              }}
-                              onContextMenu={(e) => handleContextMenu(e, folder, 'folder')}
-                            >
-                              {isSelectionMode && (
-                                <div className="absolute top-4 left-4 z-[40]">
-                                  <div
-                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`folder-${folder.id}`) ? 'bg-accent-primary border-accent-primary scale-110' : 'bg-white border-accent-primary/40 -rotate-6 group-hover:rotate-0 group-hover:border-accent-primary shadow-inner'}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleItemSelection(`folder-${folder.id}`);
-                                    }}
-                                  >
-                                    {selectedIds.has(`folder-${folder.id}`) && <Check size={12} strokeWidth={4} className="text-white" />}
-                                  </div>
-                                </div>
-                              )}
-                              {selectedItem?.id === folder.id && selectedItem?.type === 'folder' && (
-                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-file-folder text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
-                                  <Check size={14} strokeWidth={3} />
-                                </div>
-                              )}
-                              <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
-                                <div className="text-file-folder relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md">
-                                  {renderIcon('folder', 56)}
-                                </div>
-                                <div className="absolute inset-0 bg-gradient-to-br from-file-folder/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                              </div>
-                              <div className="flex flex-col gap-1.5 px-1.5">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[14px] font-extrabold text-text-primary truncate" title={folder.name}>{folder.name}</span>
-                                  <button
-                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleContextMenu(e, folder, 'folder', true);
-                                    }}
-                                  >
-                                    <MoreVertical size={14} />
-                                  </button>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
-                                  <span className="bg-file-folder/10 text-file-folder px-2 py-0.5 rounded-md">{folder.items} items</span>
-                                  <span>•</span>
-                                  <span>{folder.size}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                          {displayedFiles.map(file => (
-                            <div
-                              key={`file-${file.id}`}
-                              className={`group bg-bg-secondary rounded-[22px] border p-4 transition-all duration-400 cursor-pointer hover:shadow-soft hover:-translate-y-1.5 transform-gpu relative ${isSelectionMode && selectedIds.has(`file-${file.id}`) ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : 'border-border-color hover:border-file-${file.type}/40 hover:bg-bg-tertiary/20'}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (isSelectionMode) {
-                                  toggleItemSelection(`file-${file.id}`);
-                                } else {
-                                  setSelectedItem(file);
-                                }
-                              }}
-                              onContextMenu={(e) => handleContextMenu(e, file, 'file')}
-                            >
-                              {isSelectionMode && (
-                                <div className="absolute top-4 left-4 z-[40]">
-                                  <div
-                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`file-${file.id}`) ? 'bg-accent-primary border-accent-primary scale-110' : 'bg-white border-accent-primary/40 -rotate-6 group-hover:rotate-0 group-hover:border-accent-primary shadow-inner'}`}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toggleItemSelection(`file-${file.id}`);
-                                    }}
-                                  >
-                                    {selectedIds.has(`file-${file.id}`) && <Check size={12} strokeWidth={4} className="text-white" />}
-                                  </div>
-                                </div>
-                              )}
-                              {selectedItem?.id === file.id && selectedItem?.type !== 'folder' && (
-                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent-primary text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
-                                  <Check size={14} strokeWidth={3} />
-                                </div>
-                              )}
-                              <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
-                                {file.preview ? (
-                                  <img src={file.preview} alt={file.name} className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-115" loading="lazy" />
-                                ) : (
-                                  <div className={`text-file-${file.type} relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md`}>
-                                    {renderIcon(file.type, 56)}
-                                  </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-transparent opacity-100 transition-opacity"></div>
-                              </div>
-                              <div className="flex flex-col gap-1.5 px-1.5">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[14px] font-extrabold text-text-primary truncate" title={file.name}>{file.name}</span>
-                                  <button
-                                    className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleContextMenu(e, file, 'file', true);
-                                    }}
-                                  >
-                                    <MoreVertical size={14} />
-                                  </button>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
-                                  <span className={`text-file-${file.type} opacity-80 uppercase tracking-tighter text-[10px]`}>{getKindString(file.type)}</span>
-                                  <span>•</span>
-                                  <span>{file.size}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
+              <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar -mx-2 px-2 pb-8">
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-[200px] animate-fade-in">
+                    <div className="w-6 h-6 border-[3px] border-border-color border-t-accent-primary rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <>
+                    {displayedFolders.length === 0 && displayedFiles.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center text-center p-20 bg-bg-secondary border-2 border-dashed border-border-color rounded-[20px] mt-5 animate-fade-in shadow-sm">
+                        <div className="w-20 h-20 bg-bg-tertiary rounded-[24px] flex items-center justify-center text-text-secondary mb-6 opacity-80 mix-blend-luminosity shadow-sm">
+                          <Folder size={40} />
                         </div>
-                      ) : (
-                        <div className="animate-fade-in bg-bg-secondary rounded-[26px] border border-border-color overflow-hidden shadow-soft mb-10 transition-all duration-500">
-                          <div className={`grid ${isSelectionMode ? "grid-cols-[48px_1.5fr_0.8fr_1fr_1fr_0.80fr_48px]" : "grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px]"} gap-4 p-4 px-8 border-b border-border-color bg-bg-tertiary/20 text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.16em] items-center`}>
-                            {isSelectionMode && (
-                              <div className="flex justify-center">
-                                <div
-                                  className={`w-5 h-5 rounded-md border flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm ${(displayedFolders as any[]).every(f => selectedIds.has(`folder-${f.id}`)) &&
-                                    (displayedFiles as any[]).every(f => selectedIds.has(`file-${f.id}`)) &&
-                                    (displayedFolders.length > 0 || displayedFiles.length > 0)
-                                    ? 'bg-accent-primary border-accent-primary' : 'bg-white border-accent-primary/30 hover:border-accent-primary'}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const allIdsInView = [
-                                      ...displayedFolders.map(f => `folder-${f.id}`),
-                                      ...displayedFiles.map(f => `file-${f.id}`)
-                                    ];
-                                    const allSelected = allIdsInView.every(id => selectedIds.has(id));
-                                    const newSelected = new Set(selectedIds);
-                                    if (allSelected) {
-                                      allIdsInView.forEach(id => newSelected.delete(id));
-                                    } else {
-                                      allIdsInView.forEach(id => newSelected.add(id));
-                                    }
-                                    setSelectedIds(newSelected);
-                                  }}
-                                >
-                                  {(displayedFolders as any[]).every(f => selectedIds.has(`folder-${f.id}`)) &&
-                                    (displayedFiles as any[]).every(f => selectedIds.has(`file-${f.id}`)) &&
-                                    (displayedFolders.length > 0 || displayedFiles.length > 0) &&
-                                    <Check size={12} strokeWidth={4} className="text-white" />}
-                                </div>
-                              </div>
-                            )}
-                            <div className="pl-1.5">Name</div>
-                            <div className="hidden lg:block">Kind</div>
-                            <div className="hidden lg:block">Owner</div>
-                            <div className="hidden lg:block">Modified</div>
-                            <div className="text-right pr-4">Size</div>
-                            <div></div>
-                          </div>
-                          <div className="divide-y divide-border-color/20">
+                        <h3 className="text-xl font-bold text-text-primary mb-2">This folder is empty</h3>
+                        <p className="text-sm text-text-secondary max-w-xs mx-auto mb-6 leading-relaxed">
+                          Drag and drop files here to upload, or use the button below to get started.
+                        </p>
+                        <div className="flex gap-3 justify-center">
+                          <button className="flex items-center gap-2 bg-accent-gradient text-white p-2.5 px-6 rounded-xl font-semibold cursor-pointer transition-all hover:translate-y-[-0.5px] hover:shadow-lg active:translate-y-0 active:scale-95 shadow-md">
+                            <Plus size={18} />
+                            Upload Files
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {viewMode === 'grid' ? (
+                          <div className="animate-fade-in grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-7 pb-10">
                             {displayedFolders.map(folder => (
                               <div
                                 key={`folder-${folder.id}`}
-                                className={`group grid ${isSelectionMode ? "grid-cols-[48px_1.5fr_0.8fr_1fr_1fr_0.80fr_48px]" : "grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px]"} gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${isSelectionMode && selectedIds.has(`folder-${folder.id}`) ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.08] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/20' : ''}`}
+                                className={`group bg-bg-secondary rounded-[22px] border p-3.5 transition-all duration-400 cursor-pointer hover:shadow-soft hover:-translate-y-1.5 transform-gpu relative ${isSelectionMode && selectedIds.has(`folder-${folder.id}`) ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'border-file-folder ring-2 ring-file-folder/20 bg-file-folder/[0.03] shadow-lg shadow-file-folder/10' : 'border-border-color hover:border-file-folder/40 hover:bg-bg-tertiary/20'}`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (isSelectionMode) {
@@ -789,9 +633,9 @@ export default function App() {
                                 onContextMenu={(e) => handleContextMenu(e, folder, 'folder')}
                               >
                                 {isSelectionMode && (
-                                  <div className="flex justify-center">
+                                  <div className="absolute top-4 left-4 z-[40]">
                                     <div
-                                      className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`folder-${folder.id}`) ? 'bg-accent-primary border-accent-primary' : 'bg-white border-accent-primary/30 hover:border-accent-primary'}`}
+                                      className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`folder-${folder.id}`) ? 'bg-accent-primary border-accent-primary scale-110' : 'bg-white border-accent-primary/40 -rotate-6 group-hover:rotate-0 group-hover:border-accent-primary shadow-inner'}`}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         toggleItemSelection(`folder-${folder.id}`);
@@ -801,38 +645,42 @@ export default function App() {
                                     </div>
                                   </div>
                                 )}
-                                <div className="flex items-center gap-4 min-w-0">
-                                  <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-file-folder/10 text-file-folder shadow-sm transition-all">
-                                    {renderIcon('folder', 18)}
+                                {selectedItem?.id === folder.id && selectedItem?.type === 'folder' && (
+                                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-file-folder text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
+                                    <Check size={14} strokeWidth={3} />
                                   </div>
-                                  <span className="text-[14px] font-bold text-text-primary truncate">{folder.name}</span>
+                                )}
+                                <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
+                                  <div className="text-file-folder relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md">
+                                    {renderIcon('folder', 56)}
+                                  </div>
+                                  <div className="absolute inset-0 bg-gradient-to-br from-file-folder/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 </div>
-                                <div className="hidden lg:block">
-                                  <span className="text-[10px] font-extrabold text-file-folder bg-file-folder/10 px-2 py-0.5 rounded-md uppercase tracking-tight">Folder</span>
-                                </div>
-                                <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
-                                  {renderOwnerAvatar(folder.owner)}
-                                  <span className="truncate">{folder.owner === 'me' ? 'Only me' : folder.owner}</span>
-                                </div>
-                                <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{folder.date}</div>
-                                <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{folder.size}</div>
-                                <div className="flex justify-end pr-1">
-                                  <button
-                                    className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleContextMenu(e, folder, 'folder', true);
-                                    }}
-                                  >
-                                    <MoreVertical size={16} />
-                                  </button>
+                                <div className="flex flex-col gap-1.5 px-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[14px] font-extrabold text-text-primary truncate" title={folder.name}>{folder.name}</span>
+                                    <button
+                                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleContextMenu(e, folder, 'folder', true);
+                                      }}
+                                    >
+                                      <MoreVertical size={14} />
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
+                                    <span className="bg-file-folder/10 text-file-folder px-2 py-0.5 rounded-md">{folder.items} items</span>
+                                    <span>•</span>
+                                    <span>{folder.size}</span>
+                                  </div>
                                 </div>
                               </div>
                             ))}
                             {displayedFiles.map(file => (
                               <div
                                 key={`file-${file.id}`}
-                                className={`group grid ${isSelectionMode ? "grid-cols-[48px_1.5fr_0.8fr_1fr_1fr_0.80fr_48px]" : "grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px]"} gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${isSelectionMode && selectedIds.has(`file-${file.id}`) ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : ''}`}
+                                className={`group bg-bg-secondary rounded-[22px] border p-4 transition-all duration-400 cursor-pointer hover:shadow-soft hover:-translate-y-1.5 transform-gpu relative ${isSelectionMode && selectedIds.has(`file-${file.id}`) ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'border-accent-primary ring-2 ring-accent-primary/20 bg-accent-primary/[0.03] shadow-lg shadow-accent-primary/10' : 'border-border-color hover:border-file-${file.type}/40 hover:bg-bg-tertiary/20'}`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (isSelectionMode) {
@@ -844,9 +692,9 @@ export default function App() {
                                 onContextMenu={(e) => handleContextMenu(e, file, 'file')}
                               >
                                 {isSelectionMode && (
-                                  <div className="flex justify-center">
+                                  <div className="absolute top-4 left-4 z-[40]">
                                     <div
-                                      className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`file-${file.id}`) ? 'bg-accent-primary border-accent-primary' : 'bg-white border-accent-primary/30 hover:border-accent-primary'}`}
+                                      className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`file-${file.id}`) ? 'bg-accent-primary border-accent-primary scale-110' : 'bg-white border-accent-primary/40 -rotate-6 group-hover:rotate-0 group-hover:border-accent-primary shadow-inner'}`}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         toggleItemSelection(`file-${file.id}`);
@@ -856,48 +704,216 @@ export default function App() {
                                     </div>
                                   </div>
                                 )}
-                                <div className="flex items-center gap-4 min-w-0">
-                                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-file-${file.type}/10 text-file-${file.type} shadow-sm transition-all`}>
-                                    {renderIcon(file.type, 18)}
+                                {selectedItem?.id === file.id && selectedItem?.type !== 'folder' && (
+                                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-accent-primary text-white rounded-full flex items-center justify-center shadow-lg animate-scale-up z-20">
+                                    <Check size={14} strokeWidth={3} />
                                   </div>
-                                  <span className="text-[14px] font-bold text-text-primary truncate">{file.name}</span>
+                                )}
+                                <div className="aspect-[4/3] bg-bg-tertiary/50 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden transition-all group-hover:bg-bg-secondary shadow-inner">
+                                  {file.preview ? (
+                                    <img src={file.preview} alt={file.name} className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-115" loading="lazy" />
+                                  ) : (
+                                    <div className={`text-file-${file.type} relative z-10 transition-transform duration-500 group-hover:scale-115 group-hover:rotate-3 filter drop-shadow-md`}>
+                                      {renderIcon(file.type, 56)}
+                                    </div>
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-transparent opacity-100 transition-opacity"></div>
                                 </div>
-                                <div className="hidden lg:block">
-                                  <span className={`text-[10px] font-extrabold text-file-${file.type} bg-file-${file.type}/10 px-2 py-0.5 rounded-md uppercase tracking-tight`}>{getKindString(file.type)}</span>
-                                </div>
-                                <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
-                                  {renderOwnerAvatar(file.owner)}
-                                  <span className="truncate">{file.owner === 'me' ? 'Only me' : file.owner}</span>
-                                </div>
-                                <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{file.date}</div>
-                                <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{file.size}</div>
-                                <div className="flex justify-end pr-1">
-                                  <button
-                                    className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleContextMenu(e, file, 'file', true);
-                                    }}
-                                  >
-                                    <MoreVertical size={16} />
-                                  </button>
+                                <div className="flex flex-col gap-1.5 px-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[14px] font-extrabold text-text-primary truncate" title={file.name}>{file.name}</span>
+                                    <button
+                                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg border border-border-color bg-bg-secondary text-text-secondary hover:text-text-primary transition-all active:scale-95"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleContextMenu(e, file, 'file', true);
+                                      }}
+                                    >
+                                      <MoreVertical size={14} />
+                                    </button>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs font-bold text-text-secondary">
+                                    <span className={`text-file-${file.type} opacity-80 uppercase tracking-tighter text-[10px]`}>{getKindString(file.type)}</span>
+                                    <span>•</span>
+                                    <span>{file.size}</span>
+                                  </div>
                                 </div>
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
+                        ) : (
+                          <div className="flex flex-col min-h-0 h-full">
+                            {/* Fixed Table Header */}
+                            <div className="bg-bg-secondary rounded-t-[26px] border border-border-color border-b-0 overflow-hidden shadow-sm flex-shrink-0">
+                              <div className={`grid ${isSelectionMode ? "grid-cols-[48px_1.5fr_0.8fr_1fr_1fr_0.80fr_48px]" : "grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px]"} gap-4 p-4 px-8 bg-bg-tertiary/20 text-[11px] font-extrabold text-text-secondary uppercase tracking-[0.16em] items-center`}>
+                                {isSelectionMode && (
+                                  <div className="flex justify-center">
+                                    <div
+                                      className={`w-5 h-5 rounded-md border flex items-center justify-center cursor-pointer transition-all duration-300 shadow-sm ${(displayedFolders as any[]).every(f => selectedIds.has(`folder-${f.id}`)) &&
+                                        (displayedFiles as any[]).every(f => selectedIds.has(`file-${f.id}`)) &&
+                                        (displayedFolders.length > 0 || displayedFiles.length > 0)
+                                        ? 'bg-accent-primary border-accent-primary' : 'bg-white border-accent-primary/30 hover:border-accent-primary'}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const allIdsInView = [
+                                          ...displayedFolders.map(f => `folder-${f.id}`),
+                                          ...displayedFiles.map(f => `file-${f.id}`)
+                                        ];
+                                        const allSelected = allIdsInView.every(id => selectedIds.has(id));
+                                        const newSelected = new Set(selectedIds);
+                                        if (allSelected) {
+                                          allIdsInView.forEach(id => newSelected.delete(id));
+                                        } else {
+                                          allIdsInView.forEach(id => newSelected.add(id));
+                                        }
+                                        setSelectedIds(newSelected);
+                                      }}
+                                    >
+                                      {(displayedFolders as any[]).every(f => selectedIds.has(`folder-${f.id}`)) &&
+                                        (displayedFiles as any[]).every(f => selectedIds.has(`file-${f.id}`)) &&
+                                        (displayedFolders.length > 0 || displayedFiles.length > 0) &&
+                                        <Check size={12} strokeWidth={4} className="text-white" />}
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="pl-1.5">Name</div>
+                                <div className="hidden lg:block">Kind</div>
+                                <div className="hidden lg:block">Owner</div>
+                                <div className="hidden lg:block">Modified</div>
+                                <div className="text-right pr-4">Size</div>
+                                <div></div>
+                              </div>
+                            </div>
+
+                            {/* Scrollable Table Body */}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar bg-bg-secondary rounded-b-[26px] border border-border-color border-t-0 shadow-soft min-h-0">
+                              <div className="divide-y divide-border-color/20">
+                                {displayedFolders.map(folder => (
+                                  <div
+                                    key={`folder-${folder.id}`}
+                                    className={`group grid ${isSelectionMode ? "grid-cols-[48px_1.5fr_0.8fr_1fr_1fr_0.80fr_48px]" : "grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px]"} gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${isSelectionMode && selectedIds.has(`folder-${folder.id}`) ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : selectedItem?.id === folder.id && selectedItem?.type === 'folder' ? 'bg-file-folder/[0.08] shadow-[inset_4px_0_0_0_var(--color-file-folder)] ring-1 ring-file-folder/20' : ''}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isSelectionMode) {
+                                        toggleItemSelection(`folder-${folder.id}`);
+                                      } else {
+                                        navigateToFolder(folder);
+                                      }
+                                    }}
+                                    onContextMenu={(e) => handleContextMenu(e, folder, 'folder')}
+                                  >
+                                    {isSelectionMode && (
+                                      <div className="flex justify-center">
+                                        <div
+                                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`folder-${folder.id}`) ? 'bg-accent-primary border-accent-primary' : 'bg-white border-accent-primary/30 hover:border-accent-primary'}`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleItemSelection(`folder-${folder.id}`);
+                                          }}
+                                        >
+                                          {selectedIds.has(`folder-${folder.id}`) && <Check size={12} strokeWidth={4} className="text-white" />}
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-4 min-w-0">
+                                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-file-folder/10 text-file-folder shadow-sm transition-all">
+                                        {renderIcon('folder', 18)}
+                                      </div>
+                                      <span className="text-[14px] font-bold text-text-primary truncate">{folder.name}</span>
+                                    </div>
+                                    <div className="hidden lg:block">
+                                      <span className="text-[10px] font-extrabold text-file-folder bg-file-folder/10 px-2 py-0.5 rounded-md uppercase tracking-tight">Folder</span>
+                                    </div>
+                                    <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
+                                      {renderOwnerAvatar(folder.owner)}
+                                      <span className="truncate">{folder.owner === 'me' ? 'Only me' : folder.owner}</span>
+                                    </div>
+                                    <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{folder.date}</div>
+                                    <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{folder.size}</div>
+                                    <div className="flex justify-end pr-1">
+                                      <button
+                                        className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleContextMenu(e, folder, 'folder', true);
+                                        }}
+                                      >
+                                        <MoreVertical size={16} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                                {displayedFiles.map(file => (
+                                  <div
+                                    key={`file-${file.id}`}
+                                    className={`group grid ${isSelectionMode ? "grid-cols-[48px_1.5fr_0.8fr_1fr_1fr_0.80fr_48px]" : "grid-cols-[1.5fr_0.8fr_1fr_1fr_0.80fr_48px]"} gap-4 p-4 px-8 items-center cursor-pointer transition-all duration-200 hover:bg-hover-highlight relative ${isSelectionMode && selectedIds.has(`file-${file.id}`) ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : selectedItem?.id === file.id && selectedItem?.type !== 'folder' ? 'bg-accent-primary/[0.08] shadow-[inset_4px_0_0_0_var(--accent-primary)] ring-1 ring-accent-primary/20' : ''}`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isSelectionMode) {
+                                        toggleItemSelection(`file-${file.id}`);
+                                      } else {
+                                        setSelectedItem(file);
+                                      }
+                                    }}
+                                    onContextMenu={(e) => handleContextMenu(e, file, 'file')}
+                                  >
+                                    {isSelectionMode && (
+                                      <div className="flex justify-center">
+                                        <div
+                                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shadow-sm ${selectedIds.has(`file-${file.id}`) ? 'bg-accent-primary border-accent-primary' : 'bg-white border-accent-primary/30 hover:border-accent-primary'}`}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleItemSelection(`file-${file.id}`);
+                                          }}
+                                        >
+                                          {selectedIds.has(`file-${file.id}`) && <Check size={12} strokeWidth={4} className="text-white" />}
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-4 min-w-0">
+                                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-file-${file.type}/10 text-file-${file.type} shadow-sm transition-all`}>
+                                        {renderIcon(file.type, 18)}
+                                      </div>
+                                      <span className="text-[14px] font-bold text-text-primary truncate">{file.name}</span>
+                                    </div>
+                                    <div className="hidden lg:block">
+                                      <span className={`text-[10px] font-extrabold text-file-${file.type} bg-file-${file.type}/10 px-2 py-0.5 rounded-md uppercase tracking-tight`}>{getKindString(file.type)}</span>
+                                    </div>
+                                    <div className="hidden lg:flex items-center gap-2.5 text-[13px] text-text-secondary font-semibold">
+                                      {renderOwnerAvatar(file.owner)}
+                                      <span className="truncate">{file.owner === 'me' ? 'Only me' : file.owner}</span>
+                                    </div>
+                                    <div className="hidden lg:block text-[13px] text-text-secondary font-medium">{file.date}</div>
+                                    <div className="text-[13px] text-text-secondary font-bold text-right pr-4">{file.size}</div>
+                                    <div className="flex justify-end pr-1">
+                                      <button
+                                        className="p-2 rounded-xl text-text-secondary hover:bg-bg-secondary hover:border-border-color border border-transparent transition-all active:scale-95"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleContextMenu(e, file, 'file', true);
+                                        }}
+                                      >
+                                        <MoreVertical size={16} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
             {isSelectionMode && selectedIds.size > 0 && (
               <div className="sticky bottom-10 left-0 right-0 z-[150] px-6 pointer-events-none animate-slide-up-docked">
                 <div className="mx-auto w-fit max-w-full pointer-events-auto">
                   <div className="bg-bg-secondary/90 backdrop-blur-2xl border border-border-color rounded-full p-2 px-3 shadow-lg shadow-black/10 flex items-center gap-2 ring-1 ring-white/5">
-                    
+
                     {/* Theme-Aware Pulsar Selection Unit */}
                     <div className="flex items-center gap-3 bg-bg-tertiary px-4 py-2.5 rounded-full border border-border-color mr-1 group/pulsar">
                       <div className="relative flex items-center justify-center">
@@ -914,7 +930,7 @@ export default function App() {
 
                     {/* Unified Command Hub with Tooltips */}
                     <div className="flex items-center gap-1">
-                       {[
+                      {[
                         { icon: <Share2 size={18} />, label: 'Share', color: 'hover:bg-blue-500/10 hover:text-blue-500' },
                         { icon: <Download size={18} />, label: 'Download', color: 'hover:bg-emerald-500/10 hover:text-emerald-500' },
                         { icon: <Copy size={18} />, label: 'Copy', color: 'hover:bg-purple-500/10 hover:text-purple-500' },
@@ -926,7 +942,7 @@ export default function App() {
                             {action.label}
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-text-primary"></div>
                           </div>
-                          
+
                           <button
                             className={`flex items-center justify-center w-11 h-11 rounded-full text-text-secondary transition-all duration-300 hover:scale-110 active:scale-95 ${action.color}`}
                           >
@@ -940,31 +956,31 @@ export default function App() {
 
                     {/* Destructive & Exit Unit */}
                     <div className="flex items-center gap-1.5 pr-1">
-                       <div className="relative group/btn">
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover/btn:opacity-100 translate-y-2 group-hover/btn:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-xl z-[160]">
-                            Delete
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-red-500"></div>
-                          </div>
-                          <button
-                            className="w-11 h-11 rounded-full text-red-500 hover:bg-red-500/10 transition-all active:scale-90 flex items-center justify-center group/trash"
-                            onClick={() => { setSelectedIds(new Set()); setIsSelectionMode(false); }}
-                          >
-                            <Trash2 size={20} className="group-hover/trash:rotate-12 transition-transform" />
-                          </button>
-                       </div>
+                      <div className="relative group/btn">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover/btn:opacity-100 translate-y-2 group-hover/btn:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-xl z-[160]">
+                          Delete
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-red-500"></div>
+                        </div>
+                        <button
+                          className="w-11 h-11 rounded-full text-red-500 hover:bg-red-500/10 transition-all active:scale-90 flex items-center justify-center group/trash"
+                          onClick={() => { setSelectedIds(new Set()); setIsSelectionMode(false); }}
+                        >
+                          <Trash2 size={20} className="group-hover/trash:rotate-12 transition-transform" />
+                        </button>
+                      </div>
 
-                       <div className="relative group/btn">
-                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-text-secondary text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover/btn:opacity-100 translate-y-2 group-hover/btn:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-xl z-[160]">
-                            Close
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-text-secondary"></div>
-                          </div>
-                          <button
-                            className="w-11 h-11 rounded-full text-text-secondary hover:bg-bg-tertiary transition-all active:scale-90 flex items-center justify-center group/close"
-                            onClick={() => { setSelectedIds(new Set()); setIsSelectionMode(false); }}
-                          >
-                            <X size={20} className="group-hover/close:rotate-90 transition-transform duration-300" />
-                          </button>
-                       </div>
+                      <div className="relative group/btn">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-text-secondary text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover/btn:opacity-100 translate-y-2 group-hover/btn:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-xl z-[160]">
+                          Close
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 border-[5px] border-transparent border-t-text-secondary"></div>
+                        </div>
+                        <button
+                          className="w-11 h-11 rounded-full text-text-secondary hover:bg-bg-tertiary transition-all active:scale-90 flex items-center justify-center group/close"
+                          onClick={() => { setSelectedIds(new Set()); setIsSelectionMode(false); }}
+                        >
+                          <X size={20} className="group-hover/close:rotate-90 transition-transform duration-300" />
+                        </button>
+                      </div>
                     </div>
 
                   </div>
